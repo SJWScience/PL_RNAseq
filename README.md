@@ -98,4 +98,6 @@ Pseudomonas_aeruginosa_PAO1_070421 \
 ```
 
   - limitBAMsortRAM had to be added because without it the command would error out due to not enough RAM (frustrating).
+
   - The above code allows you to essentially concat files together (like you would do for technical replicates essentially). Not much use for independent replicates (i think). So run them seperate and just loop it to get it tearing through them.
+  
