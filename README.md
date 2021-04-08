@@ -86,8 +86,7 @@ Adding in additional files to the analysis
 
 ```bash
 star --runThreadN 6\
---genomeDir /usr/local/bin/STARgenomes/ \
-Pseudomonas_aeruginosa_PAO1_070421 \
+--genomeDir /usr/local/bin/STARgenomes/Pseudomonas_aeruginosa_PAO1_070421 \
 --readFilesCommand gunzip -c \
 --readFilesIn ~/Desktop/local_storage/PL_RNAseq_testing/trimmed/trimmed_spoT_Un_1.fastq.gz,/Users/sam_2021/Desktop/local_storage/PL_RNAseq_testing/trimmed/trimmed_spoT_Un_2.fastq.gz,/Users/sam_2021/Desktop/local_storage/PL_RNAseq_testing/trimmed/trimmed_spoT_Un_3.fastq.gz \
 --quantMode GeneCounts \
@@ -100,4 +99,15 @@ Pseudomonas_aeruginosa_PAO1_070421 \
   - limitBAMsortRAM had to be added because without it the command would error out due to not enough RAM (frustrating).
 
   - The above code allows you to essentially concat files together (like you would do for technical replicates essentially). Not much use for independent replicates (i think). So run them seperate and just loop it to get it tearing through them.
-  
+
+  ```bash
+
+for i
+in *fastq.gz;
+do
+STAR --runMode alignReads --readFilesCommand gunzip -c --outSAMtype BAM Unsorted --genomeDir /usr/local/bin/STARgenomes/Pseudomonas_aeruginosa_PAO1_070421 --readFilesIn $i --runThreadN 6 --outFileNamePrefix /Users/sam_2021/Desktop/local_storage/PL_RNAseq_testing/STAR_alignments/first_iteration_defaults_basic/${i%fastq.gz} --limitBAMsortRAM 1238776520 --outSAMattributes Standard --quantMode GeneCounts
+done
+
+```
+
+  - This loop works. Next step formatting outputs for input into DEseq2
