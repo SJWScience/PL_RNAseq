@@ -8,12 +8,12 @@
 #echo $4
 
 usage="
-varEV version 0.3 16-apr-19
+PL_RNAseq version 0.0 07-apr-21
 
 Usage: ./`basename $0` -i <arg> -s <arg> -o <arg> -d <arg>
-	-i --INPUT_DIR	Input directory of genes to be used in this analysis
-			Eg: /Volumes/userdata/staff_groups/lamontlab/genes/
-			Make sure to include all /
+	-i --INPUT_DIR	Input directory of raw fastq files for this project
+			Eg: ~/project1/raw_data/
+			Make sure to include all forward slashes ( / )
 
 	-s --SUFFIX	Suffix of gene files to be used in this analysis
 			Eg: .fasta
