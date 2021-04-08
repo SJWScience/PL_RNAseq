@@ -78,3 +78,24 @@ star --runThreadN 6 \
 - column 4: counts for the 2nd read strand aligned with RNA (the most common protocol nowadays). Because this was single end RNAseq its got low numbers in the '1st read strand'. For SE reads i will take Col4.
 
   - notes little finicky things like if you are putting in more than one sample as part of an experiment you typically sperate them by a comma with no space (sample1,sample2). The problem with this is you need absolute file paths for this, if you use shortcuts like $HOME or ~ it will error out because it doesnt parse it properly. so make sure you use absolute paths in files num_alignments
+
+
+##8th April 2021##
+
+Adding in additional files to the analysis
+
+```bash
+star --runThreadN 6\
+--genomeDir /usr/local/bin/STARgenomes/ \
+Pseudomonas_aeruginosa_PAO1_070421 \
+--readFilesCommand gunzip -c \
+--readFilesIn ~/Desktop/local_storage/PL_RNAseq_testing/trimmed/trimmed_spoT_Un_1.fastq.gz,/Users/sam_2021/Desktop/local_storage/PL_RNAseq_testing/trimmed/trimmed_spoT_Un_2.fastq.gz,/Users/sam_2021/Desktop/local_storage/PL_RNAseq_testing/trimmed/trimmed_spoT_Un_3.fastq.gz \
+--quantMode GeneCounts \
+--outSAMtype BAM SortedByCoordinate \
+--outSAMattributes Standard \
+--limitBAMsortRAM 1238776520
+
+```
+
+  - limitBAMsortRAM had to be added because without it the command would error out due to not enough RAM (frustrating).
+  - The above code allows you to essentially concat files together (like you would do for technical replicates essentially). Not much use for independent replicates (i think). So run them seperate and just loop it to get it tearing through them.
