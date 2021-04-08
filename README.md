@@ -37,8 +37,8 @@ star --runThreadN 6 \
 ```
 
 
-    - As above shows, little things to keep in mind. If the fq files are compressed (when are they not!?) you need to add the gunzip command in there. Additionally for downstream processes like DEseq2 you need to output GeneCounts those files require a little bit of extra work after though (see example below)
-    - One other thing i had to do for this to work (it was working without the --outSAMtype and --outSAMattributes) was to run the command 'ulimit -n 10000'. before i did that the command was throwing up an error of "BAMoutput.cpp:27:BAMoutput: exiting because of *OUTPUT FILE* error: could not create output file ./_STARtmp//BAMsort/4/49 SOLUTION: check that the path exists and you have write permission for this file. Also check ulimit -n and increase it to allow more open files."
+  - As above shows, little things to keep in mind. If the fq files are compressed (when are they not!?) you need to add the gunzip command in there. Additionally for downstream processes like DEseq2 you need to output GeneCounts those files require a little bit of extra work after though (see example below)
+  - One other thing i had to do for this to work (it was working without the --outSAMtype and --outSAMattributes) was to run the command 'ulimit -n 10000'. before i did that the command was throwing up an error of "BAMoutput.cpp:27:BAMoutput: exiting because of *OUTPUT FILE* error: could not create output file ./_STARtmp//BAMsort/4/49 SOLUTION: check that the path exists and you have write permission for this file. Also check ulimit -n and increase it to allow more open files."
 
 ```R
     N_unmapped	977798	977798	977798
