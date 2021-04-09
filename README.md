@@ -136,6 +136,7 @@ cat <(echo -e "SampleName\tFileName\tGene\tInduced") <(paste <(ls ../deseq2_inpu
 
   - that results in a file looking like this
 
+```R
   SampleName	FileName	Gene	Induced
   spoT_In_1.	trimmed_spoT_In_1._counts.txt	spoT	In
   spoT_In_2.	trimmed_spoT_In_2._counts.txt	spoT	In
@@ -143,6 +144,8 @@ cat <(echo -e "SampleName\tFileName\tGene\tInduced") <(paste <(ls ../deseq2_inpu
   spoT_Un_1.	trimmed_spoT_Un_1._counts.txt	spoT	Un
   spoT_Un_2.	trimmed_spoT_Un_2._counts.txt	spoT	Un
   spoT_Un_3.	trimmed_spoT_Un_3._counts.txt	spoT	Un
+
+```
 
   - not perfect, but it works for this purpose (a little messy with the period in the sample names etc. can refine)
 
