@@ -1,4 +1,4 @@
-##7th April 2021##
+#7th April 2021
 
 STAR is quite finicky and seems overkill for bacterial RNAseq. However, things to be mindful of in the future.
 
@@ -80,7 +80,7 @@ star --runThreadN 6 \
   - notes little finicky things like if you are putting in more than one sample as part of an experiment you typically sperate them by a comma with no space (sample1,sample2). The problem with this is you need absolute file paths for this, if you use shortcuts like $HOME or ~ it will error out because it doesnt parse it properly. so make sure you use absolute paths in files num_alignments
 
 
-##8th April 2021##
+#8th April 2021
 
 Adding in additional files to the analysis
 
@@ -113,7 +113,7 @@ done
   - This loop works. Next step formatting outputs for input into DEseq2
 
 
-##9th April 2021##
+#9th April 2021
 
   - first steps are to extract relevant info from the STAR alignment gene GeneCounts, can be done with a simple loop.
 
