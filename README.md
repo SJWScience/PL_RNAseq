@@ -211,7 +211,7 @@ dev.off()
 
 ```
 
-![alt text](https://github.com/SJWScience/PL_RNAseq/blob/objects/spoT_PCA.png?raw=true)
+![PCA Plot](https://github.com/SJWScience/PL_RNAseq/objects/spoT_PCA.png?raw=true)
 
 
   - This will give you a PCA plot, sample heat map, and differentially expressed genes. Its not pretty though and needs further refining. BUT it currently works. (see memo on In sample 2 being poor amount of reads - i could see this in the original fq.gz files, however i persisted to see where it would go, but it clearly is an outlier)
