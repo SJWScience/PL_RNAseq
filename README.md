@@ -111,3 +111,107 @@ done
 ```
 
   - This loop works. Next step formatting outputs for input into DEseq2
+
+
+##9th April 2021##
+
+  - first steps are to extract relevant info from the STAR alignment gene GeneCounts, can be done with a simple loop.
+
+```bash
+
+for i in *ReadsPerGene.out.tab                   
+do echo $i
+cut -f1,4 $i | grep -v "_" > ../../deseq2_inputs/`basename $i ReadsPerGene.out.tab`_counts.txt
+done
+
+```
+
+  - Next is to make the "experimental design" document that will load into R for DESeq2, you can extract all this info from your samples if you wanted to and have named them accordingly (this is what i did). Or you can just make your own table and save it and import it into R.
+
+```bash
+
+cat <(echo -e "SampleName\tFileName\tGene\tInduced") <(paste <(ls ../deseq2_inputs | cut -d"_" -f2-4) <(ls ../deseq2_inputs) <(ls ../deseq2_inputs | cut -d"_" -f2 | awk '{print $0}') <(ls ../deseq2_inputs | cut -d"_" -f3 | awk '{print $0}')) > ../sample_sheet_spoT.txt
+
+```
+
+  - that results in a file looking like this
+
+  SampleName	FileName	Gene	Induced
+  spoT_In_1.	trimmed_spoT_In_1._counts.txt	spoT	In
+  spoT_In_2.	trimmed_spoT_In_2._counts.txt	spoT	In
+  spoT_In_3.	trimmed_spoT_In_3._counts.txt	spoT	In
+  spoT_Un_1.	trimmed_spoT_Un_1._counts.txt	spoT	Un
+  spoT_Un_2.	trimmed_spoT_Un_2._counts.txt	spoT	Un
+  spoT_Un_3.	trimmed_spoT_Un_3._counts.txt	spoT	Un
+
+  - not perfect, but it works for this purpose (a little messy with the period in the sample names etc. can refine)
+
+  - Next is parsing it into R. I prefer to use Rstudio for this, however to make life easier you can parse it into R straight away through terminal.
+
+
+```R
+
+
+library(DESeq2)
+
+spoT_sampletable <- read.table("../sample_sheet_spoT.txt", header=T, sep="\t")
+
+rownames(spoT_sampletable) <- spoT_sampletable$SampleName
+
+head(spoT_sampletable)
+nrow(spoT_sampletable)
+ncol(spoT_sampletable)
+
+spoT_star <- DESeqDataSetFromHTSeqCount(sampleTable = spoT_sampletable, directory = "../deseq2_inputs/", design = ~ Induced)
+
+nrow(spoT_star)
+
+spoT_star <- spoT_star[rowSums(counts(spoT_star)) > 10, ]
+
+nrow (spoT_star)
+
+spoT_star2 <- DESeq(spoT_star)
+
+spoT_norm_counts <- log2(counts(spoT_star2, normalized = TRUE)+1)
+
+head(spoT_norm_counts)
+
+write.table(spoT_norm_counts, "../spoT_normalized_counts.txt", quote=F, col.names=T, row.names=F, sep="\t")
+
+resultsNames(spoT_star2)
+
+spoT_DEG <- results(object = spoT_star2, name="Induced_Un_vs_In")
+
+head(spoT_DEG)
+
+library(apeglm)
+
+spoT_DEG_shrink <- lfcShrink(dds = spoT_star2, coef="Induced_Un_vs_In", type="apeglm")
+head(spoT_DGE)
+
+head(spoT_DEG_shrink)
+
+write.table(spoT_DEG_shrink, "../spoT_deseq2_results_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
+
+write.table(spoT_DEG, "../spoT_deseq2_results.txt", quote=F, col.names=T, row.names=T, sep="\t")
+
+library(pheatmap)
+
+spoT_var_stabl <- vst(spoT_star2)
+
+spoT_DistMatrix <- as.matrix(dist(t(assay(spoT_var_stabl))))
+
+png("sample_distance_heatmap_star.png")
+pheatmap(spoT_DistMatrix)
+
+png("../spoT_PCA.png")
+plotPCA(object = spoT_var_stabl, intgroup = "Induced")
+
+dev.off()
+
+```
+
+![alt text](https://github.com/SJWScience/PL_RNAseq/blob/objects/spoT_PCA.png?raw=true)
+
+
+  - This will give you a PCA plot, sample heat map, and differentially expressed genes. Its not pretty though and needs further refining. BUT it currently works. (see memo on In sample 2 being poor amount of reads - i could see this in the original fq.gz files, however i persisted to see where it would go, but it clearly is an outlier)
