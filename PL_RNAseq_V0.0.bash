@@ -188,17 +188,4 @@ star --runThreadN ${THREADS} \
 --outFileNamePrefix ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" \
 --outSAMattributes Standard
 
-#tblastn -query $tmp_dir/$i${SUFFIX}.tmp -db ${DATABASE} -out ${OUTPUT_DIR}"$i".blast -num_threads 100 -max_hsps 1 -num_alignments 5000 -num_descriptions 5000 -seg no
-#echo "$i" MVIEW
-#mview -top 5000 -in blast ${OUTPUT_DIR}"$i".blast -out fasta > ${OUTPUT_DIR}"$i".blast.fasta
-#echo "$i" SNP-SITES
-#/Volumes/userdata/student_users/samtaylorwardell/bin/snp-sites/src/snp-sites  -v ${OUTPUT_DIR}"$i".blast.fasta -o ${OUTPUT_DIR}"$i".output_variants.vcf
-#awk '/#CHROM/ ,EOF { print $4,$2,$5 }' ${OUTPUT_DIR}"$i".output_variants.vcf | awk '{ n=split($3,arr,","); for(i=1;i<=n;i++) print $1,$2,arr[i] }' | tr -d "[:blank:]" | sed '1d' > ${OUTPUT_DIR}"$i".var
-#echo "$i" provean
-#if [ -f /Volumes/userdata/student_users/samtaylorwardell/provean-1.1.5/OUTPUTS/"$i".sss ]; then
-#provean.sh --num_threads 100 -q $tmp_dir/$i${SUFFIX}.tmp -v ${OUTPUT_DIR}"$i".var --supporting_set /Volumes/userdata/student_users/samtaylorwardell/provean-1.1.5/OUTPUTS/"$i".sss --verbose > ${OUTPUT_DIR}"$i".provean 2>&1
-#else
-#provean.sh --num_threads 100 -q $tmp_dir/$i${SUFFIX}.tmp -v ${OUTPUT_DIR}"$i".var --save_supporting_set /Volumes/userdata/student_users/samtaylorwardell/provean-1.1.5/OUTPUTS/"$i".sss --verbose > ${OUTPUT_DIR}"$i".provean 2>&1
-#fi
-#rm -rf $tmp_dir
 done
