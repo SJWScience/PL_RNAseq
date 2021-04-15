@@ -1,3 +1,4 @@
+#! /bin/bash
 #args: input_dir($1) file_suffix($2) output_dir($3) reference($4) threads($5) lib_type($6)
 #echo $1
 #echo ""
@@ -198,6 +199,6 @@ cut -f1,4 ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.
 ## Creating an info sheet to be parsed into the R script ##
 # echo cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls pipeline_test/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-3) <(ls pipeline_test/$(date +%Y%m%d_)deseq2_inputs) <(ls pipeline_test/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls pipeline_test/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > pipeline_test/$(date +%Y%m%d_)sample_sheet_DEseq.txt
 
-echo cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-3) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
+cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-3) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
 
 done
