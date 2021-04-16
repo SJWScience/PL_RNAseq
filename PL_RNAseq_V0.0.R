@@ -36,5 +36,6 @@ write.table(DESEQ2_norm_counts, "DESEQ2_norm_counts.txt", quote=F, col.names=T, 
 resultsNames(input_star2)
 
 DESEQ2_DEG <- results(object = input_star2, name="Condition_Un_vs_In")
+##this part needs to not be hardcoded##
 
 head(DESEQ2_DEG)
