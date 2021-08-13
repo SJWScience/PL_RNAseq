@@ -92,6 +92,11 @@ case $key in
 		shift # past argument
 		shift # past value
 		;;
+		-refcreate|--reference_create)
+		REFERENCE_CREATE="$2"
+		shift # past argument
+		shift # past value
+		;;
     *)    # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument
@@ -106,6 +111,7 @@ command -v fastqc >/dev/null 2>&1 || { echo >&2 "This script requires fastqc but
 export PATH=/usr/local/bin/Trimmomatic-0.39:$PATH
 command -v java -jar trimmomatic-0.39.jar >/dev/null 2>&1 || { echo >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
 
+if [ -z ${REFERENCE_CREATE}]
 
 ## Code for parsing arguments, allows for them to be placed in any order within the run command ##
 echo ""
