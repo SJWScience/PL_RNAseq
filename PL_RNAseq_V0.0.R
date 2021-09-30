@@ -192,7 +192,7 @@ if (is.na(cluster_profiler_enriched_MF[1,5]) == "TRUE"){
   }
 
 
-setwd(raw_dir)
+setwd(wor_dir)
 
 #BP only
 PAO1_GO_BP <- PAO1_GO_all[ which(PAO1_GO_all$Namespace=='biological_process')] #same as above but with biological process - this will likely be the one you want to see.
@@ -236,6 +236,7 @@ if (is.na(cluster_profiler_enriched_CC[1,5]) == "TRUE"){
 
 #cluster_profiler can also easily use kegg, which is a massive load off
 
+setwd(wor_dir)
 clustprof_kegg <- enrichKEGG(gene = gene, organism = "pae", pvalueCutoff = 0.05)
 #organism currently hardcoded which needs to change, this will give you pathways which are enriched from your significantly differentially expressed genes
 #head(clustprof_kegg) #will show you what they are
@@ -252,12 +253,13 @@ if (is.na(clustprof_kegg[1,5]) == "TRUE"){
 data_fold_changes <- DESEQ2_DEG_shrink$log2FoldChange
 names(data_fold_changes) <- rownames(DESEQ2_DEG_shrink)
 
+setwd(wor_dir)
 setwd(raw_dir)
 setwd("pathview")
 
 tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pae", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
 
-setwd(raw_dir)
+setwd(wor_dir)
 
 if (is.na(clustprof_kegg[1,5]) == "TRUE"){
   print("no significant enrichment terms")
