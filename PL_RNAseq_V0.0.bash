@@ -184,7 +184,12 @@ echo "$i" ## Added so you know exactly which files are being loaded into the pip
 
 fastqc -t ${THREADS} -o ${OUTPUT_DIR}$(date +%Y%m%d_)raw_data_fastQC/ ${INPUT_DIR}"$i"${SUFFIX} ## Prelim fastQC on raw reads ##
 
-java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20 ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
+
+if [ ${LIB_TYPE} = "PE" ]; then
+	java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/NexteraPE-PE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20 ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the Nextera PE primer list, this may need to be changed if you have data from different sources, be aware of it ##
+else
+	java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20 ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
+fi
 
 fastqc -t ${THREADS} -o ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC/ ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ## Post trim, fastQC ##
 

@@ -139,7 +139,7 @@ dev.off()
 
 setwd(wor_dir)
 
-sig_genes_pth <- c(DESEQ2_DEGX$gene) # take names of significantly differentially expressed genes
+sig_genes_pth <- c(DESEQ2_DEGX$gene) #take names of significantly differentially expressed genes
 sig_scores_pth <- c(DESEQ2_DEGX$padj) #take their associated adjusted pval
 gene_ratio_input <- data.frame(gene_ids = c(sig_genes_pth), gene_scores = c(sig_scores_pth)) #merge into format required for downstream
 
@@ -165,10 +165,9 @@ if (is.na(cluster_profiler_enriched[1,5]) == "TRUE"){
   setwd(raw_dir)
   dotplot(cluster_profiler_enriched, showCategory=15) + ggtitle("GO gene ratio (all ontologies)")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched.pdf")
+  setwd(wor_dir)
   }
 
-
-setwd(wor_dir)
 
 #However, doing an enrichment analysis on all GO is silly, you can do them on specific categories this example is molecular_function (fortunately all of this info is in the pseudomonas.com ontology sheet)
 
@@ -180,7 +179,6 @@ term2gene_MF <- subset(PAO1_GO_MF, select=c(5,1)) # "   "   "   "
 #tmp <- get_parent_nodes(term2gene_MF_aschar)
 #head(tmp)
 
-setwd(raw_dir)
 cluster_profiler_enriched_MF <- enricher(gene, qvalueCutoff = 0.05, pAdjustMethod = "BH", TERM2GENE = term2gene_MF, TERM2NAME = term2name_MF) #new GO analysis on subsetted data
 
 if (is.na(cluster_profiler_enriched_MF[1,5]) == "TRUE"){
@@ -189,10 +187,9 @@ if (is.na(cluster_profiler_enriched_MF[1,5]) == "TRUE"){
   setwd(raw_dir)
   dotplot(cluster_profiler_enriched_MF, showCategory=15) + ggtitle("GO gene ratio (Molecular function)")
   ggsave(filename = "output_plots/MF_gene_ratio_enriched.pdf")
+  setwd(wor_dir)
   }
 
-
-setwd(wor_dir)
 
 #BP only
 PAO1_GO_BP <- PAO1_GO_all[ which(PAO1_GO_all$Namespace=='biological_process')] #same as above but with biological process - this will likely be the one you want to see.
@@ -208,10 +205,8 @@ if (is.na(cluster_profiler_enriched_BP[1,5]) == "TRUE"){
   setwd(raw_dir)
   dotplot(cluster_profiler_enriched_BP, showCategory=15) + ggtitle("GO gene ratio (Biological process)")
   ggsave(filename = "output_plots/BP_gene_ratio_enriched.pdf")
+  setwd(wor_dir)
   }
-
-
-setwd(wor_dir)
 
 #CC only
 
@@ -232,11 +227,11 @@ if (is.na(cluster_profiler_enriched_CC[1,5]) == "TRUE"){
   setwd(raw_dir)
   dotplot(cluster_profiler_enriched_CC, showCategory=15) + ggtitle("GO gene ratio (all ontologies)")
   ggsave(filename = "output_plots/CC_gene_ratio_enriched.pdf")
+  setwd(wor_dir)
   }
 
 #cluster_profiler can also easily use kegg, which is a massive load off
 
-setwd(wor_dir)
 clustprof_kegg <- enrichKEGG(gene = gene, organism = "pae", pvalueCutoff = 0.05)
 #organism currently hardcoded which needs to change, this will give you pathways which are enriched from your significantly differentially expressed genes
 #head(clustprof_kegg) #will show you what they are
@@ -247,13 +242,13 @@ if (is.na(clustprof_kegg[1,5]) == "TRUE"){
   } else {
   setwd(raw_dir)
   dotplot(clustprof_kegg, showCategory=15) + ggtitle("GO gene ratio (KEGG pathways)")
-  ggsave(filename = "output_plots/clustprof_kegg.pdf")
+  ggsave(filename = "output_plots/KEGG_gene_ratio_enriched.pdf")
+  setwd(wor_dir)
   }
 
 data_fold_changes <- DESEQ2_DEG_shrink$log2FoldChange
 names(data_fold_changes) <- rownames(DESEQ2_DEG_shrink)
 
-setwd(wor_dir)
 setwd(raw_dir)
 setwd("pathview")
 
@@ -261,14 +256,6 @@ tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], 
 
 setwd(wor_dir)
 
-if (is.na(clustprof_kegg[1,5]) == "TRUE"){
-  print("no significant enrichment terms")
-  }else {
-  setwd(raw_dir)
-  pdf("output_plots/KEGG_gene_ratio_enriched.pdf")
-  dotplot(cluster_profiler_enriched_CC, showCategory=15) + ggtitle("GO gene ratio (KEGG pathways)")
-  dev.off()
-  }
 #pdf("output_plots/KEGG_gene_ratio_enriched.pdf")
 #dotplot(clustprof_kegg, showCategory=15) + ggtitle("KEGG gene ratio (cellular component)") #will create generic cool looking dotplot
 #dev.off()
