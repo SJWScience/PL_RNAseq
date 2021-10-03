@@ -37,10 +37,12 @@ nrow(input_table_DESEQ2)
 ncol(input_table_DESEQ2)
 nmcolz <- colnames(input_table_DESEQ2)
 
-#input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design =  ~ Condition + Gene)
-#input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design =  ~ Condition)
-input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design = formula(paste("~",nmcolz[4:4])))
 
+if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
+  print(input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design =  formula(paste("~",nmcolz[4:4], "+",nmcolz[3:3]))))
+}else {
+  print(input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design = formula(paste("~",nmcolz[4:4]))))
+}
 
 nrow(input_star)
 
