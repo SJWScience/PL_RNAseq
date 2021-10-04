@@ -131,8 +131,8 @@ DESEQ2_DEGX <- DESEQ2_table_dge_tb %>%
 setwd(raw_dir)
 
 PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
-merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
-
+#merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
+merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA14_num')
 head(merge_attempt)
 
 pdf("output_plots/volcano_plot_named.pdf")
@@ -148,7 +148,8 @@ gene_ratio_input <- data.frame(gene_ids = c(sig_genes_pth), gene_scores = c(sig_
 
 #import GO annotations from pseudomonas.com gene ontology - need to find a way to get this to be uniform to all gene ontologies, but currently works well
 
-PAO1_GO_all<-data.table::fread("~/Desktop/gene_ontology_csv.csv") #don't hardcode table - let user import
+#PAO1_GO_all<-data.table::fread("~/Desktop/gene_ontology_csv.csv") #don't hardcode table - let user import
+PAO1_GO_all<-data.table::fread("~/Desktop/PA14_gene_ontology_csv.csv") #don't hardcode table - let user import
 
 term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #subsetting the relevant columns
 geneList <- gene_ratio_input[,2] #list out genes
@@ -235,7 +236,8 @@ if (is.na(cluster_profiler_enriched_CC[1,5]) == "TRUE"){
 
 #cluster_profiler can also easily use kegg, which is a massive load off
 
-clustprof_kegg <- enrichKEGG(gene = gene, organism = "pae", pvalueCutoff = 0.05)
+#clustprof_kegg <- enrichKEGG(gene = gene, organism = "pae", pvalueCutoff = 0.05)
+clustprof_kegg <- enrichKEGG(gene = gene, organism = "pau", pvalueCutoff = 0.05)
 #organism currently hardcoded which needs to change, this will give you pathways which are enriched from your significantly differentially expressed genes
 #head(clustprof_kegg) #will show you what they are
 #head(clustprof_kegg[,1]) #will show you specifically what pathways you are looking at significantly enriched
@@ -255,7 +257,8 @@ names(data_fold_changes) <- rownames(DESEQ2_DEG)
 setwd(raw_dir)
 setwd("pathview")
 
-tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pae", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
+#tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pae", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
+tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pau", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
 
 setwd(wor_dir)
 
