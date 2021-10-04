@@ -39,10 +39,11 @@ nmcolz <- colnames(input_table_DESEQ2)
 
 
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
-  print(input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design =  formula(paste("~",nmcolz[4:4], "+",nmcolz[3:3]))))
+  input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design =  formula(paste("~" ,nmcolz[4:4],"+",nmcolz[3:3])))
 }else {
-  print(input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design = formula(paste("~",nmcolz[4:4]))))
+  input_star <- DESeqDataSetFromHTSeqCount(sampleTable = input_table_DESEQ2, directory = (args[4]), design = formula(paste("~",nmcolz[4:4])))
 }
+
 
 nrow(input_star)
 
@@ -50,7 +51,7 @@ input_star <- input_star[rowSums(counts(input_star)) > 10, ]
 
 nrow (input_star)
 
-input_star2 <- DESeq(input_star)
+input_star2 <- DESeq(input_star, betaPrior = TRUE)
 
 DESEQ2_norm_counts <- log2(counts(input_star2, normalized = TRUE)+1)
 
@@ -65,24 +66,24 @@ setwd(wor_dir)
 resultsNames(input_star2)
 
 extractrial <- unique(input_table_DESEQ2[,4])
-paste(nmcolz[4:4],"_", extractrial[2:2],"_vs_",extractrial[1:1], sep = "")
+paste(nmcolz[4:4],"_", extractrial[1:1],"_vs_",extractrial[2:2], sep = "")
 
-DESEQ2_DEG <- results(object = input_star2, name= paste(nmcolz[4:4], "_", extractrial[2:2],"_vs_",extractrial[1:1], sep = ""))
+DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
 ##DESEQ2_DEG_alt <- results(object = input_star2, name="Gene_spoT_vs_relA")
 ##this part needs to not be hardcoded##
-
+#DESEQ2_DEG <- results(object = input_star2, contrast = c("Condition","In","Un"))
+#paste(nmcolz[4:4], extractrial[1:1],extractrial[2:2], sep = ",")
 head(DESEQ2_DEG)
 ##head(DESEQ2_DEG_alt)
-
-DESEQ2_DEG_shrink <- lfcShrink(dds = input_star2, coef= paste(nmcolz[4:4],"_", extractrial[2:2],"_vs_",extractrial[1:1], sep = ""), type="apeglm") #needs to not be hardcoded
-head(DESEQ2_DEG_shrink)
+#DESEQ2_DEG_shrink <- lfcShrink(dds = input_star2, coef= paste(nmcolz[4:4],"_", extractrial[2:2],"_vs_",extractrial[1:1], sep = ""), type="apeglm") #needs to not be hardcoded
+#head(DESEQ2_DEG_shrink)
 
 ##DESEQ2_alt_DEG_shrink <- lfcShrink(dds = input_star2, coef="Gene_spoT_vs_relA", type="apeglm")
 ##head(DESEQ2_alt_DEG_shrink)
 
 setwd(raw_dir)
 
-write.table(DESEQ2_DEG_shrink, "output_tables/DESEQ2_DEG_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
+#write.table(DESEQ2_DEG_shrink, "output_tables/DESEQ2_DEG_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
 ##write.table(DESEQ2_alt_DEG_shrink, "DESEQ2_alt_DEG_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
 
 write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
@@ -112,7 +113,7 @@ plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[4:4])
 dev.off()
 
 pdf("output_plots/volcano_plot.pdf")
-EnhancedVolcano(DESEQ2_DEG_shrink, lab = rownames(DESEQ2_DEG_shrink), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+EnhancedVolcano(DESEQ2_DEG, lab = rownames(DESEQ2_DEG), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
 
 dev.off()
 
@@ -248,8 +249,8 @@ if (is.na(clustprof_kegg[1,5]) == "TRUE"){
   setwd(wor_dir)
   }
 
-data_fold_changes <- DESEQ2_DEG_shrink$log2FoldChange
-names(data_fold_changes) <- rownames(DESEQ2_DEG_shrink)
+data_fold_changes <- DESEQ2_DEG$log2FoldChange
+names(data_fold_changes) <- rownames(DESEQ2_DEG)
 
 setwd(raw_dir)
 setwd("pathview")
