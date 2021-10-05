@@ -167,7 +167,11 @@ if (is.na(cluster_profiler_enriched[1,5]) == "TRUE"){
   print("no significant enrichment terms")
   }else {
   setwd(raw_dir)
-  dotplot(cluster_profiler_enriched, showCategory=15) + ggtitle("GO gene ratio (all ontologies)")
+  cluster_profiler_enriched@result$cp_GeneRatio <- cluster_profiler_enriched@result$GeneRatio
+  cluster_profiler_enriched@result$cp_Description <- cluster_profiler_enriched@result$Description
+  cluster_profiler_enriched@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched@result$BgRatio, "/"), `[[`, 1), sep = "")
+  cluster_profiler_enriched@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(cluster_profiler_enriched@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  dotplot(cluster_profiler_enriched, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (all ontologies)")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched.pdf")
   setwd(wor_dir)
   }
@@ -188,10 +192,14 @@ cluster_profiler_enriched_MF <- enricher(gene, qvalueCutoff = 0.05, pAdjustMetho
 if (is.na(cluster_profiler_enriched_MF[1,5]) == "TRUE"){
   print("no significant enrichment terms")
   }else {
-  setwd(raw_dir)
-  dotplot(cluster_profiler_enriched_MF, showCategory=15) + ggtitle("GO gene ratio (Molecular function)")
-  ggsave(filename = "output_plots/MF_gene_ratio_enriched.pdf")
-  setwd(wor_dir)
+    setwd(raw_dir)
+    cluster_profiler_enriched_MF@result$cp_GeneRatio <- cluster_profiler_enriched_MF@result$GeneRatio
+    cluster_profiler_enriched@result_MF$cp_Description <- cluster_profiler_enriched_MF@result$Description
+    cluster_profiler_enriched_MF@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_MF@result$BgRatio, "/"), `[[`, 1), sep = "")
+    cluster_profiler_enriched_MF@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(cluster_profiler_enriched_MF@result$ID, "\t"), `[[`, 1), ")", sep = "")
+    dotplot(cluster_profiler_enriched_MF, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Molecular Function)")
+    ggsave(filename = "output_plots/GO_gene_ratio_enriched_MF.pdf")
+    setwd(wor_dir)
   }
 
 
@@ -206,10 +214,14 @@ cluster_profiler_enriched_BP <- enricher(gene, qvalueCutoff = 0.05, pAdjustMetho
 if (is.na(cluster_profiler_enriched_BP[1,5]) == "TRUE"){
   print("no significant enrichment terms")
   } else {
-  setwd(raw_dir)
-  dotplot(cluster_profiler_enriched_BP, showCategory=15) + ggtitle("GO gene ratio (Biological process)")
-  ggsave(filename = "output_plots/BP_gene_ratio_enriched.pdf")
-  setwd(wor_dir)
+    setwd(raw_dir)
+    cluster_profiler_enriched_BP@result$cp_GeneRatio <- cluster_profiler_enriched_BP@result$GeneRatio
+    cluster_profiler_enriched@result_BP$cp_Description <- cluster_profiler_enriched_BP@result$Description
+    cluster_profiler_enriched_BP@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_BP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_BP@result$BgRatio, "/"), `[[`, 1), sep = "")
+    cluster_profiler_enriched_BP@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_BP@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(cluster_profiler_enriched_BP@result$ID, "\t"), `[[`, 1), ")", sep = "")
+    dotplot(cluster_profiler_enriched_BP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Biological Process)")
+    ggsave(filename = "output_plots/GO_gene_ratio_enriched_BP.pdf")
+    setwd(wor_dir)
   }
 
 #CC only
@@ -228,10 +240,14 @@ cluster_profiler_enriched_CC <- enricher(gene, qvalueCutoff = 0.1, pAdjustMethod
 if (is.na(cluster_profiler_enriched_CC[1,5]) == "TRUE"){
   print("no significant enrichment terms")
   } else {
-  setwd(raw_dir)
-  dotplot(cluster_profiler_enriched_CC, showCategory=15) + ggtitle("GO gene ratio (all ontologies)")
-  ggsave(filename = "output_plots/CC_gene_ratio_enriched.pdf")
-  setwd(wor_dir)
+    setwd(raw_dir)
+    cluster_profiler_enriched_CC@result$cp_GeneRatio <- cluster_profiler_enriched_CC@result$GeneRatio
+    cluster_profiler_enriched_CC@result$cp_Description <- cluster_profiler_enriched_CC@result$Description
+    cluster_profiler_enriched_CC@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_CC@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_CC@result$BgRatio, "/"), `[[`, 1), sep = "")
+    cluster_profiler_enriched_CC@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_CC@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(cluster_profiler_enriched_CC@result$ID, "\t"), `[[`, 1), ")", sep = "")
+    dotplot(cluster_profiler_enriched_CC, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Celluar Component)")
+    ggsave(filename = "output_plots/GO_gene_ratio_enriched_CC.pdf")
+    setwd(wor_dir)
   }
 
 #cluster_profiler can also easily use kegg, which is a massive load off
@@ -246,7 +262,11 @@ if (is.na(clustprof_kegg[1,5]) == "TRUE"){
   print("no significant enrichment terms")
   } else {
   setwd(raw_dir)
-  dotplot(clustprof_kegg, showCategory=15) + ggtitle("GO gene ratio (KEGG pathways)")
+  clustprof_kegg@result$cp_GeneRatio <- clustprof_kegg@result$GeneRatio
+  clustprof_kegg@result$cp_Description <- clustprof_kegg@result$Description
+  clustprof_kegg@result$GeneRatio <- paste(sapply(strsplit(clustprof_kegg@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(clustprof_kegg@result$BgRatio, "/"), `[[`, 1), sep = "")
+  clustprof_kegg@result$Description <- paste(sapply(strsplit(clustprof_kegg@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(clustprof_kegg@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  dotplot(clustprof_kegg, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Gene ratio (KEGG pathways)")
   ggsave(filename = "output_plots/KEGG_gene_ratio_enriched.pdf")
   setwd(wor_dir)
   }
