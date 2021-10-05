@@ -14,6 +14,7 @@ option to add GO file in (currently hardcoded load)
 option to add custom gene id lists for enrichment analysis (currently non-existant)
 option to add species code for kegg analysis (currently hardcoded)
 option to add species to id multimapping (currently hardcoded)
+add in sub-analysis where splits up and down regulated for the enrichment analysis (to see if specific ontologies or pathways are added to enrichment with data going one way)
 
 outputing plots in a better/bigger way
 
