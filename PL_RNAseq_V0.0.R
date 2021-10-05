@@ -194,7 +194,7 @@ if (is.na(cluster_profiler_enriched_MF[1,5]) == "TRUE"){
   }else {
     setwd(raw_dir)
     cluster_profiler_enriched_MF@result$cp_GeneRatio <- cluster_profiler_enriched_MF@result$GeneRatio
-    cluster_profiler_enriched@result_MF$cp_Description <- cluster_profiler_enriched_MF@result$Description
+    cluster_profiler_enriched_MF@result$cp_Description <- cluster_profiler_enriched_MF@result$Description
     cluster_profiler_enriched_MF@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_MF@result$BgRatio, "/"), `[[`, 1), sep = "")
     cluster_profiler_enriched_MF@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(cluster_profiler_enriched_MF@result$ID, "\t"), `[[`, 1), ")", sep = "")
     dotplot(cluster_profiler_enriched_MF, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Molecular Function)")
@@ -216,7 +216,7 @@ if (is.na(cluster_profiler_enriched_BP[1,5]) == "TRUE"){
   } else {
     setwd(raw_dir)
     cluster_profiler_enriched_BP@result$cp_GeneRatio <- cluster_profiler_enriched_BP@result$GeneRatio
-    cluster_profiler_enriched@result_BP$cp_Description <- cluster_profiler_enriched_BP@result$Description
+    cluster_profiler_enriched_BP@result$cp_Description <- cluster_profiler_enriched_BP@result$Description
     cluster_profiler_enriched_BP@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_BP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_BP@result$BgRatio, "/"), `[[`, 1), sep = "")
     cluster_profiler_enriched_BP@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_BP@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(cluster_profiler_enriched_BP@result$ID, "\t"), `[[`, 1), ")", sep = "")
     dotplot(cluster_profiler_enriched_BP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Biological Process)")

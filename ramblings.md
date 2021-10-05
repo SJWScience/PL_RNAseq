@@ -8,6 +8,15 @@ summary.txt contains pass, fail, warning for each of the standard fastqc metrics
 
 add in an option to be verbose about the QC data and output a QC log file for the user to check. - from the summary.txt of each fastqc output zip files. Add in pre- and post- trimming QC??? not sure yet.
 
+Things to add
+
+option to add GO file in (currently hardcoded load)
+option to add custom gene id lists for enrichment analysis (currently non-existant)
+option to add species code for kegg analysis (currently hardcoded)
+option to add species to id multimapping (currently hardcoded)
+
+outputing plots in a better/bigger way
+
 
 # 7th April 2021
 
