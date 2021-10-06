@@ -241,4 +241,21 @@ dev.off()
 ![Sample Heatmap](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/sample_distance_heatmap_star.png)
 
 
+
   - This will give you a PCA plot, sample heat map, and differentially expressed genes. Its not pretty though and needs further refining. BUT it currently works. (see memo on In sample 2 being poor amount of reads - i could see this in the original fq.gz files, however i persisted to see where it would go, but it clearly is an outlier)
+
+  # 6th October 2021
+
+  - A whole lot has changed in the code and most things are now automated - top of this document has a list of things i still need to add to improve usability. But currently there is some pretty cool output we can generate automatically
+
+![PCA plot](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/DESEQ_conditions_PCA.pdf)
+![Sample Heatmap](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/sample_distance_heatmap_DESEQ.pdf)
+![Volcano plot](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/volcano_plot.pdf)
+![Named Volcano plot](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/volcano_plot_named.pdf)
+![Gene ratio plot (all Ontologies)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched.pdf)
+![Gene ratio plot (Molecular function)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched_MF.pdf)
+![Gene ratio plot (Cellular Component)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched_CC.pdf)
+![Gene ratio plot (Biological processes)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched_BP.pdf)
+![Gene ratio plot (Custom Gene lists)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_custom.pdf)
+![Gene ratio plot (KEGG pathways)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/KEGG_gene_ratio_enriched.pdf)
+![KEGG pathview outputs (example)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/pae02025.pathview.png)
