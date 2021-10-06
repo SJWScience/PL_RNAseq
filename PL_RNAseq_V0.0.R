@@ -4,6 +4,7 @@ args
 
 raw_dir <- (as.character(args[2]))
 wor_dir <- (as.character(args[1]))
+strain <- (as.character(args[5]))
 setwd(raw_dir)
 dir.create("output_plots")
 dir.create("output_tables")
@@ -29,6 +30,7 @@ library(data.table)
 library(Biobase)
 library(MatrixGenerics)
 library(S4Vectors)
+library(ggrepel)
 
 rownames(input_table_DESEQ2) <- input_table_DESEQ2$SampleName
 
@@ -73,28 +75,20 @@ extractrial2 <- unique(input_table_DESEQ2[,3])
 paste(nmcolz[4:4],"_", extractrial[1:1],"_vs_",extractrial[2:2], sep = "")
 paste(nmcolz[4:4],"_", extractrial2[1:1],"_vs_",extractrial2[2:2], sep = "")
 
-DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
-DESEQ2_DEG_alt <- results(object = input_star2, contrast= paste(c(nmcolz[3:3], extractrial2[1:1], extractrial2[2:2])))
-
-##DESEQ2_DEG_alt <- results(object = input_star2, name="Gene_spoT_vs_relA")
-##this part needs to not be hardcoded##
-#DESEQ2_DEG <- results(object = input_star2, contrast = c("Condition","In","Un"))
-#paste(nmcolz[4:4], extractrial[1:1],extractrial[2:2], sep = ",")
-head(DESEQ2_DEG)
-head(DESEQ2_DEG_alt)
-#DESEQ2_DEG_shrink <- lfcShrink(dds = input_star2, coef= paste(nmcolz[4:4],"_", extractrial[2:2],"_vs_",extractrial[1:1], sep = ""), type="apeglm") #needs to not be hardcoded
-#head(DESEQ2_DEG_shrink)
-
-##DESEQ2_alt_DEG_shrink <- lfcShrink(dds = input_star2, coef="Gene_spoT_vs_relA", type="apeglm")
-##head(DESEQ2_alt_DEG_shrink)
-
-setwd(raw_dir)
-
-#write.table(DESEQ2_DEG_shrink, "output_tables/DESEQ2_DEG_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
-##write.table(DESEQ2_alt_DEG_shrink, "DESEQ2_alt_DEG_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
-
-write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
-write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
+if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
+  DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
+  DESEQ2_DEG_alt <- results(object = input_star2, contrast= paste(c(nmcolz[3:3], extractrial2[1:1], extractrial2[2:2])))
+  head(DESEQ2_DEG)
+  head(DESEQ2_DEG_alt)
+  setwd(raw_dir)
+  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
+  write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
+}else {
+  DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
+  head(DESEQ2_DEG)
+  setwd(raw_dir)
+  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
+}
 
 setwd(wor_dir)
 
@@ -109,15 +103,15 @@ pheatmap(DESEQ2_DistMatrix)
 
 dev.off()
 
-pdf("output_plots/DESEQ_gene_PCA.pdf")
-plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[3:3])
-
-dev.off()
-
-pdf("output_plots/DESEQ_PCA.pdf")
-plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[4:4])
-
-dev.off()
+if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
+  p <- plotPCA(object = DESEQ2_var_stabl, intgroup = c(nmcolz[3:3], nmcolz[4:4]))
+  p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw()
+  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf")
+}else {
+  p <-plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[4:4])
+  p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw()
+  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf")
+}
 
 pdf("output_plots/volcano_plot.pdf")
 EnhancedVolcano(DESEQ2_DEG, lab = rownames(DESEQ2_DEG), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
@@ -137,10 +131,15 @@ DESEQ2_DEGX <- DESEQ2_table_dge_tb %>%
 
 setwd(raw_dir)
 
-PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
-#merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
-merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA14_num')
-head(merge_attempt)
+if (strain == "PA14"){
+  PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
+  merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA14_num')
+  head(merge_attempt)
+}else {
+  PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
+  merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
+  head(merge_attempt)
+}
 
 pdf("output_plots/volcano_plot_named.pdf")
 EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
@@ -152,17 +151,36 @@ setwd(wor_dir)
 sig_genes_pth <- c(DESEQ2_DEGX$gene) #take names of significantly differentially expressed genes
 sig_scores_pth <- c(DESEQ2_DEGX$padj) #take their associated adjusted pval
 gene_ratio_input <- data.frame(gene_ids = c(sig_genes_pth), gene_scores = c(sig_scores_pth)) #merge into format required for downstream
-
-#import GO annotations from pseudomonas.com gene ontology - need to find a way to get this to be uniform to all gene ontologies, but currently works well
-
-#PAO1_GO_all<-data.table::fread("~/Desktop/gene_ontology_csv.csv") #don't hardcode table - let user import
-PAO1_GO_all<-data.table::fread("~/Desktop/PA14_gene_ontology_csv.csv") #don't hardcode table - let user import
-
-term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #subsetting the relevant columns
 geneList <- gene_ratio_input[,2] #list out genes
 names(geneList) <- as.character(gene_ratio_input[,1]) #file formatting for downstream steps
 geneList <- sort(geneList, decreasing=TRUE) #sorting geneList relative to pval
 gene <- names(geneList)[abs(geneList)<0.05] #extracting names of genes with pval less than 0.05 (error in here i think - as i only used sig genes above for the relA_gene_ration_appmpt df)
+
+#import GO annotations from pseudomonas.com gene ontology - need to find a way to get this to be uniform to all gene ontologies, but currently works well
+
+if (strain == "PA14"){
+  PAO1_GO_all<-data.table::fread("~/Desktop/PA14_gene_ontology_csv.csv") #don't hardcode table - let user import
+}else {
+  PAO1_GO_all<-data.table::fread("~/Desktop/gene_ontology_csv.csv") #don't hardcode table - let user import
+  PAO1_custom_list <-data.table::fread("~/Desktop/R_Annotations_Daniel_20190409.csv")
+  custom_term2gene <- subset(PAO1_custom_list, select=c(2,1))
+  custom_term2name <- subset(PAO1_custom_list, select=c(2,3,1))
+  cluster_profiler_custom <- enricher(gene, qvalueCutoff = 0.05, pAdjustMethod = "BH", TERM2GENE = custom_term2gene, TERM2NAME = custom_term2name)
+  if (is.na(cluster_profiler_custom[1,5]) == "TRUE"){
+    print("no significant enrichment terms")
+  }else {
+    setwd(raw_dir)
+    cluster_profiler_custom@result$cp_GeneRatio <- cluster_profiler_custom@result$GeneRatio
+    cluster_profiler_custom@result$cp_Description <- cluster_profiler_custom@result$Description
+    cluster_profiler_custom@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_custom@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_custom@result$BgRatio, "/"), `[[`, 1), sep = "")
+    cluster_profiler_custom@result$Description <- paste(sapply(strsplit(cluster_profiler_custom@result$ID, "\t"), `[[`, 1), sep = "")
+    dotplot(cluster_profiler_custom, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment")
+    ggsave(filename = "output_plots/GO_gene_ratio_custom.pdf")
+    setwd(wor_dir)
+  }
+}
+
+term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #subsetting the relevant columns
 term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
 term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
 
@@ -238,9 +256,6 @@ term2name_CC <- subset(PAO1_GO_CC, select=c(5,6,7))
 term2gene_CC <- subset(PAO1_GO_CC, select=c(5,1))
 #term2gene_CC_aschar <- as.character(term2gene_CC$Accession)
 #par_nodes_CC_PAO1 <- get_parent_nodes(term2gene_CC_aschar)
-#pdf("output_plots/CC_gene_ratio_enriched.pdf")
-#dotplot(cluster_profiler_enriched_CC, showCategory=15) + ggtitle("GO gene ratio (cellular component)") #will create generic cool looking dotplot
-#dev.off()
 
 cluster_profiler_enriched_CC <- enricher(gene, qvalueCutoff = 0.1, pAdjustMethod = "BH", TERM2GENE = term2gene_CC, TERM2NAME = term2name_CC)
 
@@ -259,11 +274,11 @@ if (is.na(cluster_profiler_enriched_CC[1,5]) == "TRUE"){
 
 #cluster_profiler can also easily use kegg, which is a massive load off
 
-#clustprof_kegg <- enrichKEGG(gene = gene, organism = "pae", pvalueCutoff = 0.05)
-clustprof_kegg <- enrichKEGG(gene = gene, organism = "pau", pvalueCutoff = 0.05)
-#organism currently hardcoded which needs to change, this will give you pathways which are enriched from your significantly differentially expressed genes
-#head(clustprof_kegg) #will show you what they are
-#head(clustprof_kegg[,1]) #will show you specifically what pathways you are looking at significantly enriched
+if (strain == "PA14"){
+  clustprof_kegg <- enrichKEGG(gene = gene, organism = "pau", pvalueCutoff = 0.05)
+}else {
+  clustprof_kegg <- enrichKEGG(gene = gene, organism = "pae", pvalueCutoff = 0.05)
+}
 
 if (is.na(clustprof_kegg[1,5]) == "TRUE"){
   print("no significant enrichment terms")
@@ -284,15 +299,12 @@ names(data_fold_changes) <- rownames(DESEQ2_DEG)
 setwd(raw_dir)
 setwd("pathview")
 
-#tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pae", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
-tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pau", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
+if (strain == "PA14"){
+  tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pau", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
+}else {
+  tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = "pae", gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
+}
 
 setwd(wor_dir)
-
-#pdf("output_plots/KEGG_gene_ratio_enriched.pdf")
-#dotplot(clustprof_kegg, showCategory=15) + ggtitle("KEGG gene ratio (cellular component)") #will create generic cool looking dotplot
-#dev.off()
-
-
 
 quit(save="no")

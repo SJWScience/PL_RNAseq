@@ -48,6 +48,10 @@ Usage: ./`basename $0` -i <arg> -s <arg> -o <arg> -r <arg> -t <arg> -l <arg>
 			Eg: -l SE
 			Make sure to use capital letters for PE or SE
 
+	-p --STRAIN Pseudomonas aeruginosa strain (currently allows PAO1 and PA14)
+			Eg: -p PAO1
+			Make sure to correctly list strain (no PA01 or PA 14)
+
 
 full example: ./`basename $0` -i ~/project1/raw_data/  -s .fq.gz -o ~/project1/output_RNA_pipeline/ -r /usr/local/bin/STAR_genomes/Pseudomonas_aeruginosa_PAO1_070421/ -t 6 -l SE"
 
@@ -92,6 +96,11 @@ case $key in
 		shift # past argument
 		shift # past value
 		;;
+		-p|--strain)
+		STRAIN="$2"
+		shift # past argument
+		shift # past value
+		;;
     *)    # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument
@@ -111,12 +120,20 @@ command -v java -jar trimmomatic-0.39.jar >/dev/null 2>&1 || { echo >&2 "This sc
 echo ""
 if [ -z ${INPUT_DIR} ]
 then
-echo "$usage"
 echo ""
 echo "ERROR - No input directory set, please assign an input directory using the -i argument (example: -i ~/project1/raw_data/"
 exit 0
 else
 echo "INPUT_DIR = ${INPUT_DIR}"
+fi
+if [ -z ${STRAIN} ]
+then
+echo "$usage"
+echo ""
+echo "No strain set, assuming strain = PAO1"
+STRAIN=PAO1
+else
+echo "STRAIN = ${STRAIN}"
 fi
 if [ -z ${SUFFIX} ]
 then
@@ -212,4 +229,4 @@ INPUT_DESEQ=${OUTPUT_DIR}$(date +%Y%m%d_)sample_sheet_DEseq.txt
 done
 R_WD=$(pwd ${INPUT_DIR})
 IN_R=${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/
-Rscript PL_RNAseq_V0.0.R ${R_WD} ${1} ${OUTPUT_DIR} ${2} $INPUT_DESEQ ${3} $IN_R ${4} #initialise R script and pass pass arguments
+Rscript PL_RNAseq_V0.0.R ${R_WD} ${1} ${OUTPUT_DIR} ${2} $INPUT_DESEQ ${3} $IN_R ${4} ${STRAIN} ${5} #initialise R script and pass pass arguments
