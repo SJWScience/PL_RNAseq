@@ -53,6 +53,8 @@ nrow (input_star)
 
 input_star2 <- DESeq(input_star, betaPrior = TRUE)
 
+resultsNames(input_star2)
+
 DESEQ2_norm_counts <- log2(counts(input_star2, normalized = TRUE)+1)
 
 head(DESEQ2_norm_counts)
@@ -66,15 +68,20 @@ setwd(wor_dir)
 resultsNames(input_star2)
 
 extractrial <- unique(input_table_DESEQ2[,4])
+extractrial2 <- unique(input_table_DESEQ2[,3])
+
 paste(nmcolz[4:4],"_", extractrial[1:1],"_vs_",extractrial[2:2], sep = "")
+paste(nmcolz[4:4],"_", extractrial2[1:1],"_vs_",extractrial2[2:2], sep = "")
 
 DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
+DESEQ2_DEG_alt <- results(object = input_star2, contrast= paste(c(nmcolz[3:3], extractrial2[1:1], extractrial2[2:2])))
+
 ##DESEQ2_DEG_alt <- results(object = input_star2, name="Gene_spoT_vs_relA")
 ##this part needs to not be hardcoded##
 #DESEQ2_DEG <- results(object = input_star2, contrast = c("Condition","In","Un"))
 #paste(nmcolz[4:4], extractrial[1:1],extractrial[2:2], sep = ",")
 head(DESEQ2_DEG)
-##head(DESEQ2_DEG_alt)
+head(DESEQ2_DEG_alt)
 #DESEQ2_DEG_shrink <- lfcShrink(dds = input_star2, coef= paste(nmcolz[4:4],"_", extractrial[2:2],"_vs_",extractrial[1:1], sep = ""), type="apeglm") #needs to not be hardcoded
 #head(DESEQ2_DEG_shrink)
 
@@ -87,7 +94,7 @@ setwd(raw_dir)
 ##write.table(DESEQ2_alt_DEG_shrink, "DESEQ2_alt_DEG_shrink.txt", quote=F, col.names=T, row.names=T, sep="\t")
 
 write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
-#write.table(DESEQ2_DEG_alt, "DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
+write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
 
 setwd(wor_dir)
 
