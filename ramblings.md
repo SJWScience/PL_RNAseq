@@ -248,14 +248,35 @@ dev.off()
 
   - A whole lot has changed in the code and most things are now automated - top of this document has a list of things i still need to add to improve usability. But currently there is some pretty cool output we can generate automatically
 
+  - Principal component analysis plots
 ![PCA plot](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/DESEQ_conditions_PCA.png)
+
+  - Heatmap of samples used (showing sample relatedness - essentially a pca plot in headmap form)
 ![Sample Heatmap](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/sample_distance_heatmap_DESEQ.png)
+
+  - Standard output for volcano plot
 ![Volcano plot](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/volcano_plot.png)
+
+  - Output volcano plot with updated gene names (more informative)
 ![Named Volcano plot](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/volcano_plot_named.png)
+
+  - Gene ratio plots based on all gene ontologies
 ![Gene ratio plot (all Ontologies)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched.png)
+
+  - Gene ratio plots based on Molecular function gene ontology
 ![Gene ratio plot (Molecular function)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched_MF.png)
+
+  - Gene ratio plots based on Cellular component gene ontology
 ![Gene ratio plot (Cellular Component)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched_CC.png)
+
+  - Gene ratio plots based on Biological processes gene ontology
 ![Gene ratio plot (Biological processes)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_enriched_BP.png)
+
+  - Gene ratio plots based on Custom gene lists
 ![Gene ratio plot (Custom Gene lists)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/GO_gene_ratio_custom.png)
+
+  - Gene ratio plots based on KEGG pathway enrichment
 ![Gene ratio plot (KEGG pathways)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/KEGG_gene_ratio_enriched.png)
+
+  - KEGG pathway enrichment with differential expression mapped - from pathview
 ![KEGG pathview outputs (example)](https://github.com/SJWScience/PL_RNAseq/blob/main/plots/pae02025.pathview.png)
