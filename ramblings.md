@@ -11,12 +11,14 @@ add in an option to be verbose about the QC data and output a QC log file for th
 Things to add
 
 option to add GO file in (currently hardcoded load)
-option to add custom gene id lists for enrichment analysis (currently non-existant)
-option to add species code for kegg analysis (currently hardcoded)
-option to add species to id multimapping (currently hardcoded)
+option to add custom gene id lists for enrichment analysis (currently hardcoded)
+option to add species code for kegg analysis (resolved for PAO1 and PA14)
+option to add species to id multimapping (resolved for PAO1 and PA14)
 add in sub-analysis where splits up and down regulated for the enrichment analysis (to see if specific ontologies or pathways are added to enrichment with data going one way)
 
 outputing plots in a better/bigger way
+
+add updated mapping for geneIDs in the DEG output table from info sheet (just PA numbers is somewhat useless)
 
 
 # 7th April 2021
