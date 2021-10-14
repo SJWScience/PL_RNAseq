@@ -107,17 +107,23 @@ dev.off()
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
   p <- plotPCA(object = DESEQ2_var_stabl, intgroup = c(nmcolz[3:3], nmcolz[4:4]))
   p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw()
-  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf")
+  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf", height = 20, width = 20)
 }else {
   p <-plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[4:4])
   p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw()
-  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf")
+  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf", height = 20, width = 20)
 }
 
-pdf("output_plots/volcano_plot.pdf")
-EnhancedVolcano(DESEQ2_DEG, lab = rownames(DESEQ2_DEG), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
 
-dev.off()
+if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
+  EnhancedVolcano(DESEQ2_DEG, lab = rownames(DESEQ2_DEG), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  ggsave(filename = "output_plots/volcano_plot.pdf")
+  EnhancedVolcano(DESEQ2_DEG_alt, lab = rownames(DESEQ2_DEG_alt), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  ggsave(filename = "output_plots/volcano_plot_alt_compare.pdf")
+}else {
+  EnhancedVolcano(DESEQ2_DEG, lab = rownames(DESEQ2_DEG), x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  ggsave(filename = "output_plots/volcano_plot.pdf")
+}
 
 setwd(wor_dir)
 
