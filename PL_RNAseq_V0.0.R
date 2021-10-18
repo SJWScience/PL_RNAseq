@@ -55,7 +55,7 @@ nrow (input_star)
 
 input_star2 <- DESeq(input_star, betaPrior = FALSE)
 
-print("results names - pay attention")
+print("results names")
 resultsNames(input_star2)
 
 DESEQ2_norm_counts <- log2(counts(input_star2, normalized = TRUE)+1)
