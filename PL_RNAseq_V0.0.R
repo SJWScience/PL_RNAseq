@@ -1,6 +1,14 @@
 #load input data
-args = commandArgs(trailingOnly=TRUE)
-args
+if (length(commandArgs(trailingOnly=TRUE))>0) {
+  args <- commandArgs(trailingOnly=TRUE)
+}
+# library(phangorn)
+print(length(args))
+if (length(args) < 3) {
+  stop(" Usage: bloop", call.=FALSE)
+}
+
+cat("You ran the program with ", args,"\n")
 
 raw_dir <- (as.character(args[2]))
 wor_dir <- (as.character(args[1]))
@@ -103,6 +111,26 @@ pdf("output_plots/sample_distance_heatmap_DESEQ.pdf")
 pheatmap(DESEQ2_DistMatrix)
 
 dev.off()
+
+pdf("output_plots/gene_condition1.pdf")
+plotCounts(input_star2, gene=which.min(DESEQ2_DEG$padj), intgroup=c(nmcolz[4:4], nmcolz[3:3]))
+
+dev.off()
+
+
+select <- order(rowMeans(counts(input_star2,normalized=TRUE)),
+                decreasing=TRUE)[1:100]
+df <- as.data.frame(colData(input_star2)[,c(nmcolz[4:4], nmcolz[3:3])])
+
+pdf("output_plots/gene_heatmap.pdf", height = 20, width = 20)
+pheatmap(assay(DESEQ2_var_stabl)[select,], cluster_rows=FALSE, show_rownames=TRUE,
+         cluster_cols=FALSE, annotation_col=df)
+dev.off()
+
+pdf("output_plots/gene_heatmap_clustered.pdf", height = 20, width = 20)
+pheatmap::pheatmap(assay(DESEQ2_var_stabl)[select,], cluster_rows=TRUE, show_rownames=TRUE, cluster_cols=TRUE, annotation_col=df)
+dev.off()
+
 
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
   p <- plotPCA(object = DESEQ2_var_stabl, intgroup = c(nmcolz[3:3], nmcolz[4:4]))
@@ -493,4 +521,4 @@ if (strain == "PA14"){
 
 setwd(wor_dir)
 
-quit(save="no")
+#quit(save="no")
