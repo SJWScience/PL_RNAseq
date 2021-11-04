@@ -223,6 +223,10 @@ star --runThreadN ${THREADS} \
 ## Extracting the relevant columns from the STAR output, ready for parsing into R and DEseq2 ##
 cut -f1,4 ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.tab | grep -v "N_" > ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/`basename ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" ReadsPerGene.out.tab`_counts.txt
 
+
+##something is going wrong at this point in LESB strains - look into it
+
+
 ## Creating an info sheet to be parsed into the R script ##
 cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-4) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
 INPUT_DESEQ=${OUTPUT_DIR}$(date +%Y%m%d_)sample_sheet_DEseq.txt

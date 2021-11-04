@@ -24,6 +24,7 @@ padj.cutoff <- 0.05
 lfc.cutoff <- 0.58
 
 library(DESeq2)
+library(stringr)
 library(apeglm)
 library(pheatmap)
 library(ggplot2)
@@ -166,20 +167,28 @@ DESEQ2_DEGX <- DESEQ2_table_dge_tb %>%
 
 setwd(raw_dir)
 
-if (strain == "pau"){
+if (strain == "pau") {
   PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
   merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='pau_num')
   head(merge_attempt)
-}else {
+  pdf("output_plots/volcano_plot_named.pdf")
+  EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  dev.off()
+} else if (strain == "pae") {
   PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
   merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
   head(merge_attempt)
+  pdf("output_plots/volcano_plot_named.pdf")
+  EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  dev.off()
+} else {
+  print ("no match")
 }
 
-pdf("output_plots/volcano_plot_named.pdf")
-EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
 
-dev.off()
+#pdf("output_plots/volcano_plot_named.pdf")
+#EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+#dev.off()
 
 setwd(wor_dir)
 
@@ -213,9 +222,9 @@ gene <- names(geneList)[abs(geneList)<0.05] #extracting names of genes with pval
 
 #import GO annotations from pseudomonas.com gene ontology - need to find a way to get this to be uniform to all gene ontologies, but currently works well
 
-if (strain == "pau"){
+if (strain == "pau") {
   PAO1_GO_all<-data.table::fread("~/Desktop/PA14_gene_ontology_csv.csv") #don't hardcode table - let user import
-}if (strain == "pau") {
+}else if (strain == "pae") {
   PAO1_GO_all<-data.table::fread("~/Desktop/gene_ontology_csv.csv") #don't hardcode table - let user import
   PAO1_custom_list <- data.table::fread("~/Desktop/R_Annotations_Daniel_20190409.csv")
   custom_term2gene <- subset(PAO1_custom_list, select=c(2,1))
@@ -223,48 +232,53 @@ if (strain == "pau"){
   cluster_profiler_custom <- enricher(gene, qvalueCutoff = 0.05, pAdjustMethod = "BH", TERM2GENE = custom_term2gene, TERM2NAME = custom_term2name)
   cluster_profiler_customUP <- enricher(gene_up, qvalueCutoff = 0.05, pAdjustMethod = "BH", TERM2GENE = custom_term2gene, TERM2NAME = custom_term2name)
   cluster_profiler_customDOWN <- enricher(gene_down, qvalueCutoff = 0.05, pAdjustMethod = "BH", TERM2GENE = custom_term2gene, TERM2NAME = custom_term2name)
-}if (strain == "pag") {
-  PAO1_GO_all<-data.table::fread("~/Desktop/LESB_ontology.csv) #don't hardcode table - let user import
+}else if (strain == "pag") {
+  PAO1_GO_all<-data.table::fread("~/Desktop/LESB_ontology.csv")
+} else {
+  print("nb")
 }
 
-  if (is.na(cluster_profiler_custom[1,5]) == "TRUE"){
-    print("no significant enrichment terms")
-  }else {
-    setwd(raw_dir)
-    cluster_profiler_custom@result$cp_GeneRatio <- cluster_profiler_custom@result$GeneRatio
-    cluster_profiler_custom@result$cp_Description <- cluster_profiler_custom@result$Description
-    cluster_profiler_custom@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_custom@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_custom@result$BgRatio, "/"), `[[`, 1), sep = "")
-    cluster_profiler_custom@result$Description <- paste(sapply(strsplit(cluster_profiler_custom@result$ID, "\t"), `[[`, 1), sep = "")
-    dotplot(cluster_profiler_custom, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment")
-    ggsave(filename = "output_plots/GO_gene_ratio_custom.pdf")
-    setwd(wor_dir)
-  }
-  if (is.na(cluster_profiler_customUP[1,5]) == "TRUE"){
-    print("no significant enrichment terms")
-  }else {
-    setwd(raw_dir)
-    cluster_profiler_customUP@result$cp_GeneRatio <- cluster_profiler_customUP@result$GeneRatio
-    cluster_profiler_customUP@result$cp_Description <- cluster_profiler_customUP@result$Description
-    cluster_profiler_customUP@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_customUP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_customUP@result$BgRatio, "/"), `[[`, 1), sep = "")
-    cluster_profiler_customUP@result$Description <- paste(sapply(strsplit(cluster_profiler_customUP@result$ID, "\t"), `[[`, 1), sep = "")
-    dotplot(cluster_profiler_customUP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment (up-regulated)")
-    ggsave(filename = "output_plots/GO_gene_ratio_custom_upregulated.pdf")
-    setwd(wor_dir)
-  }
-  if (is.na(cluster_profiler_customDOWN[1,5]) == "TRUE"){
-    print("no significant enrichment terms")
-  }else {
-    setwd(raw_dir)
-    cluster_profiler_customDOWN@result$cp_GeneRatio <- cluster_profiler_customDOWN@result$GeneRatio
-    cluster_profiler_customDOWN@result$cp_Description <- cluster_profiler_customDOWN@result$Description
-    cluster_profiler_customDOWN@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_customDOWN@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_customDOWN@result$BgRatio, "/"), `[[`, 1), sep = "")
-    cluster_profiler_customDOWN@result$Description <- paste(sapply(strsplit(cluster_profiler_customDOWN@result$ID, "\t"), `[[`, 1), sep = "")
-    dotplot(cluster_profiler_customDOWN, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment (down-regulated)")
-    ggsave(filename = "output_plots/GO_gene_ratio_custom_downregulated.pdf")
-    setwd(wor_dir)
-  }
-}
+if (strain == "pae"){
 
+if (is.na(cluster_profiler_custom[1,5]) == "TRUE"){
+   print("no significant enrichment terms")
+ }else {
+   setwd(raw_dir)
+   cluster_profiler_custom@result$cp_GeneRatio <- cluster_profiler_custom@result$GeneRatio
+   cluster_profiler_custom@result$cp_Description <- cluster_profiler_custom@result$Description
+   cluster_profiler_custom@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_custom@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_custom@result$BgRatio, "/"), `[[`, 1), sep = "")
+   cluster_profiler_custom@result$Description <- paste(sapply(strsplit(cluster_profiler_custom@result$ID, "\t"), `[[`, 1), sep = "")
+   dotplot(cluster_profiler_custom, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment")
+   ggsave(filename = "output_plots/GO_gene_ratio_custom.pdf")
+   setwd(wor_dir)
+ }
+ if (is.na(cluster_profiler_customUP[1,5]) == "TRUE"){
+   print("no significant enrichment terms")
+ }else {
+   setwd(raw_dir)
+   cluster_profiler_customUP@result$cp_GeneRatio <- cluster_profiler_customUP@result$GeneRatio
+   cluster_profiler_customUP@result$cp_Description <- cluster_profiler_customUP@result$Description
+   cluster_profiler_customUP@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_customUP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_customUP@result$BgRatio, "/"), `[[`, 1), sep = "")
+   cluster_profiler_customUP@result$Description <- paste(sapply(strsplit(cluster_profiler_customUP@result$ID, "\t"), `[[`, 1), sep = "")
+   dotplot(cluster_profiler_customUP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment (up-regulated)")
+   ggsave(filename = "output_plots/GO_gene_ratio_custom_upregulated.pdf")
+   setwd(wor_dir)
+ }
+ if (is.na(cluster_profiler_customDOWN[1,5]) == "TRUE"){
+   print("no significant enrichment terms")
+ }else {
+   setwd(raw_dir)
+   cluster_profiler_customDOWN@result$cp_GeneRatio <- cluster_profiler_customDOWN@result$GeneRatio
+   cluster_profiler_customDOWN@result$cp_Description <- cluster_profiler_customDOWN@result$Description
+   cluster_profiler_customDOWN@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_customDOWN@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_customDOWN@result$BgRatio, "/"), `[[`, 1), sep = "")
+   cluster_profiler_customDOWN@result$Description <- paste(sapply(strsplit(cluster_profiler_customDOWN@result$ID, "\t"), `[[`, 1), sep = "")
+   dotplot(cluster_profiler_customDOWN, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Custom gene list enrichment (down-regulated)")
+   ggsave(filename = "output_plots/GO_gene_ratio_custom_downregulated.pdf")
+   setwd(wor_dir)
+ }
+} else {
+  print("No custom gene list because not PAO1")
+}
 
 term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #subsetting the relevant columns
 term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
@@ -462,6 +476,15 @@ if (is.na(cluster_profiler_enriched_CCDOWN[1,5]) == "TRUE"){
 
 #cluster_profiler can also easily use kegg, which is a massive load off
 
+if (strain == "pag"){
+  gene <- str_replace(gene, "PALES_", "PLES_")
+  gene_up <- str_replace(gene_up, "PALES_", "PLES_")
+  gene_down <- str_replace(gene_down, "PALES_", "PLES_")
+}else{
+print(" ")
+}
+
+
   clustprof_kegg <- enrichKEGG(gene = gene, organism = paste(strain), pvalueCutoff = 0.05)
   clustprof_keggUP <- enrichKEGG(gene = gene_up, organism = paste(strain), pvalueCutoff = 0.05)
   clustprof_keggDOWN <- enrichKEGG(gene = gene_down, organism = paste(strain), pvalueCutoff = 0.05)
@@ -503,9 +526,14 @@ if (is.na(clustprof_keggDOWN[1,5]) == "TRUE"){
   setwd(wor_dir)
 }
 
-
-data_fold_changes <- DESEQ2_DEG$log2FoldChange
-names(data_fold_changes) <- rownames(DESEQ2_DEG)
+if (strain == "pag"){
+  data_fold_changes <- DESEQ2_DEG$log2FoldChange
+  rownames(DESEQ2_DEG) <- str_replace(rownames(DESEQ2_DEG), "PALES_", "PLES_")
+  names(data_fold_changes) <- rownames(DESEQ2_DEG)
+}else{
+  data_fold_changes <- DESEQ2_DEG$log2FoldChange
+  names(data_fold_changes) <- rownames(DESEQ2_DEG)
+}
 
 setwd(raw_dir)
 setwd("pathview")
