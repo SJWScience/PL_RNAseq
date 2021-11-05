@@ -231,6 +231,7 @@ cut -f1,4 ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.
 cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-4) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
 INPUT_DESEQ=${OUTPUT_DIR}$(date +%Y%m%d_)sample_sheet_DEseq.txt
 done
+multiqc ${OUTPUT_DIR} -o ${OUTPUT_DIR}
 R_WD=$(pwd ${INPUT_DIR})
 IN_R=${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/
 Rscript PL_RNAseq_V0.0.R ${R_WD} ${1} ${OUTPUT_DIR} ${2} $INPUT_DESEQ ${3} $IN_R ${4} ${STRAIN} ${5} #initialise R script and pass pass arguments
