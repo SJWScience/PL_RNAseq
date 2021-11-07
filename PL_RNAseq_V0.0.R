@@ -94,7 +94,7 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
   write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
   write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
 }else {
-  DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
+  DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[2:2], extractrial[1:1])))
   head(DESEQ2_DEG)
   setwd(raw_dir)
   write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
@@ -117,7 +117,38 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
 pdf("output_plots/gene_condition1.pdf")
 plotCounts(input_star2, gene=which.min(DESEQ2_DEG$padj), intgroup=c(nmcolz[4:4], nmcolz[3:3]))
 dev.off()
+}else{
+pdf("output_plots/gene_condition1.pdf")
+plotCounts(input_star2, gene=which.min(DESEQ2_DEG$padj), intgroup=c(nmcolz[4:4]))
+dev.off()
 }
+
+if (strain == "pau"){
+pdf("output_plots/gene_PA14_56590.pdf")
+plotCounts(input_star2, gene="PA14_56590", intgroup=c(nmcolz[4:4]))
+dev.off()
+pdf("output_plots/gene_PA14_66460.pdf")
+plotCounts(input_star2, gene="PA14_66460", intgroup=c(nmcolz[4:4]))
+dev.off()
+pdf("output_plots/gene_PA14_25040.pdf")
+plotCounts(input_star2, gene="PA14_25040", intgroup=c(nmcolz[4:4]))
+dev.off()
+pdf("output_plots/gene_PA14_21220.pdf")
+plotCounts(input_star2, gene="PA14_21220", intgroup=c(nmcolz[4:4]))
+dev.off()
+pdf("output_plots/gene_PA14_27450.pdf")
+plotCounts(input_star2, gene="PA14_27450", intgroup=c(nmcolz[4:4]))
+dev.off()
+pdf("output_plots/gene_PA14_56220.pdf")
+plotCounts(input_star2, gene="PA14_56220", intgroup=c(nmcolz[4:4]))
+dev.off()
+pdf("output_plots/gene_PA14_41440.pdf")
+plotCounts(input_star2, gene="PA14_41440", intgroup=c(nmcolz[4:4]))
+dev.off()
+}else{
+print(" ")
+}
+
 
 select <- order(rowMeans(counts(input_star2,normalized=TRUE)),
                 decreasing=TRUE)[1:100]
