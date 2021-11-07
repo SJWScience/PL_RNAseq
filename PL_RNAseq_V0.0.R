@@ -212,6 +212,13 @@ if (strain == "pau") {
   pdf("output_plots/volcano_plot_named.pdf")
   EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
   dev.off()
+} else if (strain == "pag"){
+  PA_info_genes <- data.table::fread("~/Desktop/LESB_features.csv")
+  merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  head(merge_attempt)
+  pdf("output_plots/volcano_plot_named.pdf")
+  EnhancedVolcano(merge_attempt, lab = merge_attempt$Gene_Name, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  dev.off()
 } else {
   print ("no match")
 }
