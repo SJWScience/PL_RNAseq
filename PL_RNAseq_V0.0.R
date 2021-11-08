@@ -85,19 +85,47 @@ extractrial2 <- unique(input_table_DESEQ2[,3])
 paste(nmcolz[4:4],"_", extractrial[1:1],"_vs_",extractrial[2:2], sep = "")
 paste(nmcolz[4:4],"_", extractrial2[1:1],"_vs_",extractrial2[2:2], sep = "")
 
+
+if (strain == "pau") {
+  PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
+} else if (strain == "pae") {
+  PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
+} else if (strain == "pag") {
+  PA_info_genes <- data.table::fread("~/Desktop/LESB_features.csv")
+} else {
+  print ("no match")
+}
+
+
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
   DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
   DESEQ2_DEG_alt <- results(object = input_star2, contrast= paste(c(nmcolz[3:3], extractrial2[1:1], extractrial2[2:2])))
   head(DESEQ2_DEG)
   head(DESEQ2_DEG_alt)
   setwd(raw_dir)
-  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
-  write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
+  DESEQ2_table_dge_tb <- DESEQ2_DEG %>%
+    data.frame() %>%
+    tibble::rownames_to_column(var="gene") %>%
+    as_tibble()
+  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  DESEQ2_table_dge_tb1 <- DESEQ2_DEG_alt %>%
+    data.frame() %>%
+    tibble::rownames_to_column(var="gene") %>%
+    as_tibble()
+  merge_2 <- merge(DESEQ2_table_dge_tb1, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
+  write.table(merge_2, "output_tables/DESEQ2_DEG_alt_named.txt", quote=F, col.names=F, row.names=T, sep="\t")
 }else {
   DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[2:2], extractrial[1:1])))
   head(DESEQ2_DEG)
   setwd(raw_dir)
-  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
+  DESEQ2_table_dge_tb <- DESEQ2_DEG %>%
+    data.frame() %>%
+    tibble::rownames_to_column(var="gene") %>%
+    as_tibble()
+  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  head(merge_1)
+  write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
 }
 
 setwd(wor_dir)
@@ -192,6 +220,7 @@ DESEQ2_table_dge_tb <- DESEQ2_DEG %>%
   tibble::rownames_to_column(var="gene") %>%
   as_tibble()
 
+head(DESEQ2_table_dge_tb)
 
 DESEQ2_DEGX <- DESEQ2_table_dge_tb %>%
   filter(padj < padj.cutoff & abs(log2FoldChange) > lfc.cutoff)
@@ -204,25 +233,23 @@ if (strain == "pau") {
   head(merge_attempt)
   pdf("output_plots/volcano_plot_named.pdf")
   EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-  dev.off()
 } else if (strain == "pae") {
   PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
   merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
   head(merge_attempt)
   pdf("output_plots/volcano_plot_named.pdf")
   EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-  dev.off()
-} else if (strain == "pag"){
+} else if (strain == "pag") {
   PA_info_genes <- data.table::fread("~/Desktop/LESB_features.csv")
   merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
   head(merge_attempt)
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_attempt, lab = merge_attempt$Gene_Name, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-  dev.off()
+  EnhancedVolcano(merge_attempt, lab = merge_attempt$genename, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
 } else {
   print ("no match")
 }
 
+dev.off()
 
 #pdf("output_plots/volcano_plot_named.pdf")
 #EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
