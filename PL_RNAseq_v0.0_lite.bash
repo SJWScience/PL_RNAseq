@@ -12,9 +12,7 @@ usage="
 
 HELP
 
-PL_RNAseq version 0.0 12-apr-21 LITE
-
-RUN THIS VERSION IF TRIMMING AND QC HAS ALREADY BEEN DONE AND YOU ARE EITHER WANTING TO REMAP OR MAP SAMPLES TO A DIFFERENT REFERENCE GENOME!
+PL_RNAseq version 0.0 12-apr-21
 
 Programs required for operation -
 : FastQC
@@ -200,20 +198,6 @@ for i
 in $(ls ${INPUT_DIR}*${SUFFIX} | xargs -n 1 basename | cut -f 1 -d '.' -) ## Takes all files within your input directory matching your suffix provided. Cuts off the suffix (eg .fq.gz) and then sets the file name as the basename (assigned to variable $i. For example a sample called "sample1.fq.gz" becomes "sample1" and when $i variable is used it recognises that as "sample1" ##
 do
 echo "$i" ## Added so you know exactly which files are being loaded into the pipeline, enabling you to stop the pipeline if you accidentally included files you didn't want ##
-
-## Prelim fastQC on raw reads ##
-fastqc -t ${THREADS} -o ${OUTPUT_DIR}$(date +%Y%m%d_)raw_data_fastQC/ ${INPUT_DIR}"$i"${SUFFIX}
-
-if [ ${LIB_TYPE} = "PE" ]; then
-	## Trimmomatic on raw_reads, in this case it assumes your primers are found in the Nextera PE primer list, this may need to be changed if you have data from different sources, be aware of it ##
-	java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/NexteraPE-PE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
-else
-		## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
-	java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
-fi
-
-## fastQC on trimmed reads ##
-fastqc -t ${THREADS} -o ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC/ ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ## Post trim, fastQC ##
 
 ## STAR alignment, this can be customised to suit your needs ##
 mkdir ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment
