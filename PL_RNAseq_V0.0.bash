@@ -236,4 +236,4 @@ done
 multiqc ${OUTPUT_DIR} -o ${OUTPUT_DIR}
 R_WD=$(pwd ${INPUT_DIR})
 IN_R=${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/
-Rscript PL_RNAseq_V0.0.R ${R_WD} ${1} ${OUTPUT_DIR} ${2} $INPUT_DESEQ ${3} $IN_R ${4} ${STRAIN} ${5} #initialise R script and pass pass arguments
+Rscript /Users/sam_2021/github/PL_RNAseq/PL_RNAseq_V0.0.R  ${R_WD} ${1} ${OUTPUT_DIR} ${2} $INPUT_DESEQ ${3} $IN_R ${4} ${STRAIN} ${5} #initialise R script and pass pass arguments

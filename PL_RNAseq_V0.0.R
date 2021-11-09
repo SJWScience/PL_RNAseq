@@ -17,6 +17,8 @@ setwd(raw_dir)
 dir.create("output_plots")
 dir.create("output_tables")
 dir.create("pathview")
+dir.create("pathview/pathviewUP")
+dir.create("pathview/pathviewDOWN")
 setwd(wor_dir)
 input_table_DESEQ2 <- read.table(as.character(args[3]), header=T, sep="\t")
 
@@ -96,7 +98,23 @@ if (strain == "pau") {
   print ("no match")
 }
 
-
+if (strain == "saa"){
+if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
+  DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
+  DESEQ2_DEG_alt <- results(object = input_star2, contrast= paste(c(nmcolz[3:3], extractrial2[1:1], extractrial2[2:2])))
+  head(DESEQ2_DEG)
+  head(DESEQ2_DEG_alt)
+  setwd(raw_dir)
+  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
+  write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
+}
+else {
+  DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[2:2], extractrial[1:1])))
+  head(DESEQ2_DEG)
+  setwd(raw_dir)
+  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
+  }
+}else {
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
   DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[1:1], extractrial[2:2])))
   DESEQ2_DEG_alt <- results(object = input_star2, contrast= paste(c(nmcolz[3:3], extractrial2[1:1], extractrial2[2:2])))
@@ -107,6 +125,17 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
     data.frame() %>%
     tibble::rownames_to_column(var="gene") %>%
     as_tibble()
+    {
+  if (strain == "pae"){
+  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
+  DESEQ2_table_dge_tb1 <- DESEQ2_DEG_alt %>%
+    data.frame() %>%
+    tibble::rownames_to_column(var="gene") %>%
+    as_tibble()
+  merge_2 <- merge(DESEQ2_table_dge_tb1, PA_info_genes, by.x='gene', by.y='PA_num')
+  write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
+  write.table(merge_2, "output_tables/DESEQ2_DEG_alt_named.txt", quote=F, col.names=F, row.names=T, sep="\t")
+  } else {
   merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
   DESEQ2_table_dge_tb1 <- DESEQ2_DEG_alt %>%
     data.frame() %>%
@@ -115,6 +144,8 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
   merge_2 <- merge(DESEQ2_table_dge_tb1, PA_info_genes, by.x='gene', by.y='Locus_Tag')
   write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
   write.table(merge_2, "output_tables/DESEQ2_DEG_alt_named.txt", quote=F, col.names=F, row.names=T, sep="\t")
+}
+}
 }else {
   DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[2:2], extractrial[1:1])))
   head(DESEQ2_DEG)
@@ -123,9 +154,18 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
     data.frame() %>%
     tibble::rownames_to_column(var="gene") %>%
     as_tibble()
+    {
+  if (strain == "pae") {
+  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
+  head(merge_1)
+  write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
+  }else {
   merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
   head(merge_1)
   write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
+  }
+}
+}
 }
 
 setwd(wor_dir)
@@ -194,12 +234,12 @@ dev.off()
 
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
   p <- plotPCA(object = DESEQ2_var_stabl, intgroup = c(nmcolz[3:3], nmcolz[4:4]))
-  p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw()
-  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf", height = 20, width = 20)
+  p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw() + theme(aspect.ratio=1/2) #Long and skinny
+  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf", height = 20, width = 50, limitsize=FALSE)
 }else {
   p <-plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[4:4])
-  p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw()
-  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf", height = 20, width = 20)
+  p <- p + geom_label_repel(aes(label =DESEQ2_var_stabl@colData@rownames), box.padding = 0.35, point.padding = 0.5, segment.color = 'grey50') + theme_bw() + theme(aspect.ratio=1/2) #Long and skinny
+  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf", height = 20, width = 50, limitsize=FALSE)
 }
 
 
@@ -228,32 +268,20 @@ DESEQ2_DEGX <- DESEQ2_table_dge_tb %>%
 setwd(raw_dir)
 
 if (strain == "pau") {
-  PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
-  merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA14_num')
-  head(merge_attempt)
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  dev.off()
 } else if (strain == "pae") {
-  PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
-  merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA_num')
-  head(merge_attempt)
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  dev.off()
 } else if (strain == "pag") {
-  PA_info_genes <- data.table::fread("~/Desktop/LESB_features.csv")
-  merge_attempt <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
-  head(merge_attempt)
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_attempt, lab = merge_attempt$genename, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  EnhancedVolcano(merge_1, lab = merge_1$genename, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  dev.off()
 } else {
   print ("no match")
 }
-
-dev.off()
-
-#pdf("output_plots/volcano_plot_named.pdf")
-#EnhancedVolcano(merge_attempt, lab = merge_attempt$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-#dev.off()
 
 setwd(wor_dir)
 
@@ -299,6 +327,8 @@ if (strain == "pau") {
   cluster_profiler_customDOWN <- enricher(gene_down, qvalueCutoff = 0.05, pAdjustMethod = "BH", TERM2GENE = custom_term2gene, TERM2NAME = custom_term2name)
 }else if (strain == "pag") {
   PAO1_GO_all<-data.table::fread("~/Desktop/LESB_ontology.csv")
+}else if (strain == "saa"){
+  PAO1_GO_all<-data.table::fread("~/Desktop/Sa_GO.txt")
 } else {
   print("nb")
 }
@@ -345,9 +375,17 @@ if (is.na(cluster_profiler_custom[1,5]) == "TRUE"){
   print("No custom gene list because not PAO1")
 }
 
-term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #subsetting the relevant columns
-term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
-term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
+if (strain == "saa"){
+  term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
+  term2name <- subset(PAO1_GO_all, select=c(5,6)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
+} else {
+  term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
+  term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
+}
+
+head(term2name)
+head(term2gene)
+head(gene)
 
 #enrichment analysis on all GO
 
@@ -395,6 +433,10 @@ if (is.na(cluster_profiler_enrichedDOWN[1,5]) == "TRUE"){
 }
 #However, doing an enrichment analysis on all GO is silly, you can do them on specific categories this example is molecular_function (fortunately all of this info is in the pseudomonas.com ontology sheet)
 
+if (strain == "saa"){
+print ("saa still work in progress")
+setwd(wor_dir)
+} else {
 PAO1_GO_MF <- PAO1_GO_all[ which(PAO1_GO_all$Namespace=='molecular_function')] #subsetting all ontologies belonging to molecular function
 term2name_MF <- subset(PAO1_GO_MF, select=c(5,6,7)) #same as above but on subsetted data
 term2gene_MF <- subset(PAO1_GO_MF, select=c(5,1)) # "   "   "   "
@@ -538,6 +580,7 @@ if (is.na(cluster_profiler_enriched_CCDOWN[1,5]) == "TRUE"){
   ggsave(filename = "output_plots/GO_gene_ratio_enriched_CC_downregulated.pdf")
   setwd(wor_dir)
 }
+}
 
 #cluster_profiler can also easily use kegg, which is a massive load off
 
@@ -605,7 +648,12 @@ setwd("pathview")
 
 
 tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_kegg[,1], species = paste(strain), gene.idtype = "kegg", limit = list(gene= 2)) #this will output all of the differentially regulated pathways from pathview showing fancy pathway maps
-
+setwd(raw_dir)
+setwd("pathview/pathviewUP")
+tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_keggUP[,1], species = paste(strain), gene.idtype = "kegg", limit = list(gene= 2))
+setwd(raw_dir)
+setwd("pathview/pathviewDOWN")
+tmp <- pathview(gene.data = data_fold_changes, pathway.id = clustprof_keggDOWN[,1], species = paste(strain), gene.idtype = "kegg", limit = list(gene= 2))
 
 setwd(wor_dir)
 
