@@ -94,6 +94,9 @@ if (strain == "pau") {
   PA_info_genes <- data.table::fread("~/Desktop/PA_info_genes.txt")
 } else if (strain == "pag") {
   PA_info_genes <- data.table::fread("~/Desktop/LESB_features.csv")
+} else if (strain == "saa") {
+  SA_info_genes <- data.table::fread("~/Downloads/Sa_GO.tsv")
+  SA_annotate_genes <- data.table::fread("/usr/local/bin/STARgenomes/Staphylococcus_aureus_USA300_FPR3757_031121/geneInfo.tab")
 } else {
   print ("no match")
 }
@@ -105,14 +108,35 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
   head(DESEQ2_DEG)
   head(DESEQ2_DEG_alt)
   setwd(raw_dir)
-  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
-  write.table(DESEQ2_DEG_alt, "output_tables/DESEQ2_DEG_alt.txt", quote=F, col.names=T, row.names=T, sep="\t")
-}
-else {
+  DESEQ2_table_dge_tb <- DESEQ2_DEG %>%
+    data.frame() %>%
+    tibble::rownames_to_column(var="gene") %>%
+    as_tibble()
+    merge_1 <- merge(DESEQ2_table_dge_tb, SA_info_genes, by.x='gene', by.y='names')
+    merge_x <- merge(merge_1, SA_annotate_genes, by.x='gene', by.y='V2')
+    DESEQ2_table_dge_tb1 <- DESEQ2_DEG_alt %>%
+      data.frame() %>%
+      tibble::rownames_to_column(var="gene") %>%
+      as_tibble()
+    merge_2 <- merge(DESEQ2_table_dge_tb1, SA_info_genes, by.x='gene', by.y='names')
+    merge_y <- merge(merge_2, SA_annotate_genes, by.x='gene', by.y='V2')
+    write.table(merge_x, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
+    write.table(merge_y, "output_tables/DESEQ2_DEG_alt_named.txt", quote=F, col.names=F, row.names=T, sep="\t")
+}else {
   DESEQ2_DEG <- results(object = input_star2, contrast= paste(c(nmcolz[4:4], extractrial[2:2], extractrial[1:1])))
   head(DESEQ2_DEG)
   setwd(raw_dir)
-  write.table(DESEQ2_DEG, "output_tables/DESEQ2_DEG.txt", quote=F, col.names=T, row.names=T, sep="\t")
+  DESEQ2_table_dge_tb <- DESEQ2_DEG %>%
+    data.frame() %>%
+    tibble::rownames_to_column(var="gene") %>%
+    as_tibble()
+    merge_1 <- merge(DESEQ2_table_dge_tb, SA_info_genes, by.x='gene', by.y='names')
+    merge_x <- merge(merge_1, SA_annotate_genes, by.x='gene', by.y='V2')
+    DESEQ2_table_dge_tb1 <- DESEQ2_DEG %>%
+      data.frame() %>%
+      tibble::rownames_to_column(var="gene") %>%
+      as_tibble()
+    write.table(merge_x, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
   }
 }else {
 if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DESEQ2$Condition)) > 1)){
@@ -270,19 +294,16 @@ setwd(raw_dir)
 if (strain == "pau") {
   pdf("output_plots/volcano_plot_named.pdf")
   EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-  dev.off()
 } else if (strain == "pae") {
   pdf("output_plots/volcano_plot_named.pdf")
   EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-  dev.off()
 } else if (strain == "pag") {
   pdf("output_plots/volcano_plot_named.pdf")
   EnhancedVolcano(merge_1, lab = merge_1$genename, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
-  dev.off()
 } else {
   print ("no match")
 }
-
+  dev.off()
 setwd(wor_dir)
 
 sig_genes_pth <- c(DESEQ2_DEGX$gene) #take names of significantly differentially expressed genes
