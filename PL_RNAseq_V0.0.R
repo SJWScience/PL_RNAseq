@@ -293,17 +293,20 @@ setwd(raw_dir)
 
 if (strain == "pau") {
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  print(EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5))
+  dev.off()
 } else if (strain == "pae") {
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  print(EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5))
+  dev.off()
 } else if (strain == "pag") {
   pdf("output_plots/volcano_plot_named.pdf")
-  EnhancedVolcano(merge_1, lab = merge_1$genename, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5)
+  print(EnhancedVolcano(merge_1, lab = merge_1$genename, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5))
+  dev.off()
 } else {
   print ("no match")
 }
-  dev.off()
+
 setwd(wor_dir)
 
 sig_genes_pth <- c(DESEQ2_DEGX$gene) #take names of significantly differentially expressed genes
