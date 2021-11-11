@@ -5,7 +5,7 @@ if (length(commandArgs(trailingOnly=TRUE))>0) {
 # library(phangorn)
 print(length(args))
 if (length(args) < 3) {
-  stop(" Usage: bloop", call.=FALSE)
+  stop(" Usage: <INSERT HELP HERE>", call.=FALSE)
 }
 
 cat("You ran the program with ", args,"\n")
@@ -160,12 +160,12 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
   write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
   write.table(merge_2, "output_tables/DESEQ2_DEG_alt_named.txt", quote=F, col.names=F, row.names=T, sep="\t")
   } else {
-  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA14_num')
   DESEQ2_table_dge_tb1 <- DESEQ2_DEG_alt %>%
     data.frame() %>%
     tibble::rownames_to_column(var="gene") %>%
     as_tibble()
-  merge_2 <- merge(DESEQ2_table_dge_tb1, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  merge_2 <- merge(DESEQ2_table_dge_tb1, PA_info_genes, by.x='gene', by.y='PA14_num')
   write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
   write.table(merge_2, "output_tables/DESEQ2_DEG_alt_named.txt", quote=F, col.names=F, row.names=T, sep="\t")
 }
@@ -184,7 +184,7 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
   head(merge_1)
   write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
   }else {
-  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='Locus_Tag')
+  merge_1 <- merge(DESEQ2_table_dge_tb, PA_info_genes, by.x='gene', by.y='PA14_num')
   head(merge_1)
   write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote=F, col.names=T, row.names=F, sep="\t")
   }
@@ -215,31 +215,31 @@ plotCounts(input_star2, gene=which.min(DESEQ2_DEG$padj), intgroup=c(nmcolz[4:4])
 dev.off()
 }
 
-if (strain == "pau"){
-pdf("output_plots/gene_PA14_56590.pdf")
-plotCounts(input_star2, gene="PA14_56590", intgroup=c(nmcolz[4:4]))
-dev.off()
-pdf("output_plots/gene_PA14_66460.pdf")
-plotCounts(input_star2, gene="PA14_66460", intgroup=c(nmcolz[4:4]))
-dev.off()
-pdf("output_plots/gene_PA14_25040.pdf")
-plotCounts(input_star2, gene="PA14_25040", intgroup=c(nmcolz[4:4]))
-dev.off()
-pdf("output_plots/gene_PA14_21220.pdf")
-plotCounts(input_star2, gene="PA14_21220", intgroup=c(nmcolz[4:4]))
-dev.off()
-pdf("output_plots/gene_PA14_27450.pdf")
-plotCounts(input_star2, gene="PA14_27450", intgroup=c(nmcolz[4:4]))
-dev.off()
-pdf("output_plots/gene_PA14_56220.pdf")
-plotCounts(input_star2, gene="PA14_56220", intgroup=c(nmcolz[4:4]))
-dev.off()
-pdf("output_plots/gene_PA14_41440.pdf")
-plotCounts(input_star2, gene="PA14_41440", intgroup=c(nmcolz[4:4]))
-dev.off()
-}else{
-print(" ")
-}
+#if (strain == "pau"){
+#pdf("output_plots/gene_PA14_56590.pdf")
+#plotCounts(input_star2, gene="PA14_56590", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#pdf("output_plots/gene_PA14_66460.pdf")
+#plotCounts(input_star2, gene="PA14_66460", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#pdf("output_plots/gene_PA14_25040.pdf")
+#plotCounts(input_star2, gene="PA14_25040", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#pdf("output_plots/gene_PA14_21220.pdf")
+#plotCounts(input_star2, gene="PA14_21220", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#pdf("output_plots/gene_PA14_27450.pdf")
+#plotCounts(input_star2, gene="PA14_27450", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#pdf("output_plots/gene_PA14_56220.pdf")
+#plotCounts(input_star2, gene="PA14_56220", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#pdf("output_plots/gene_PA14_41440.pdf")
+#plotCounts(input_star2, gene="PA14_41440", intgroup=c(nmcolz[4:4]))
+#dev.off()
+#}else{
+#print(" ")
+#}
 
 
 select <- order(rowMeans(counts(input_star2,normalized=TRUE)),
@@ -293,7 +293,7 @@ setwd(raw_dir)
 
 if (strain == "pau") {
   pdf("output_plots/volcano_plot_named.pdf")
-  print(EnhancedVolcano(merge_1, lab = merge_1$col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5))
+  print(EnhancedVolcano(merge_1, lab = merge_1$PA14_col_use, x='log2FoldChange', y='padj', title = 'volcano plot', pCutoff = 0.01, FCcutoff = 1.5))
   dev.off()
 } else if (strain == "pae") {
   pdf("output_plots/volcano_plot_named.pdf")
