@@ -112,10 +112,8 @@ done
 
 
 command -v star >/dev/null 2>&1 || { echo >&2 "This script requires STAR but it's not installed, or not in your working environment.  Aborting."; exit 1; }
-export PATH=/usr/local/bin/FastQC:$PATH
 command -v fastqc >/dev/null 2>&1 || { echo >&2 "This script requires fastqc but it's not installed, or not in your working environment.  Aborting."; exit 1; }
-export PATH=/usr/local/bin/Trimmomatic-0.39:$PATH
-command -v java -jar trimmomatic-0.39.jar >/dev/null 2>&1 || { echo >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
+command -v trimmomatic >/dev/null 2>&1 || { echo >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
 
 
 ## Code for parsing arguments, allows for them to be placed in any order within the run command ##
@@ -166,10 +164,7 @@ else
 fi
 if [ -z ${THREADS} ]
 then
-  echo "$usage"
-  echo ""
-  echo "ERROR - No threads designated, please use the -t argument and add the number of cores you want this pipeline run on (example: -t 6)"
-  exit 0
+  ${THREADS} = 1
 else
   echo "THREADS = ${THREADS}"
 fi
@@ -190,26 +185,29 @@ echo ""
 ls ${INPUT_DIR}*${SUFFIX}
 lgth=`echo -n ${SUFFIX} | wc -c`
 lgthx=$((lgth+1))
-mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)raw_data_fastQC
-mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed
-mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC
-mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs
+mkdir -p ${OUTPUT_DIR}
+mkdir -p ${OUTPUT_DIR}/$(date +%Y%m%d_)raw_data_fastQC
+mkdir -p ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed
+mkdir -p ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC
+mkdir -p ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+echo "$SCRIPT_DIR"
 
 ## start of for loop to perform mapping and read counting on each sample within your folder matching the suffix provided ##
 for i
 in $(ls ${INPUT_DIR}*${SUFFIX} | xargs -n 1 basename | cut -f 1 -d '.' -) ## Takes all files within your input directory matching your suffix provided. Cuts off the suffix (eg .fq.gz) and then sets the file name as the basename (assigned to variable $i. For example a sample called "sample1.fq.gz" becomes "sample1" and when $i variable is used it recognises that as "sample1" ##
 do
-  echo "$i" ## Added so you know exactly which files are being loaded into the pipeline, enabling you to stop the pipeline if you accidentally included files you didn't want ##
+echo "$i" ## Added so you know exactly which files are being loaded into the pipeline, enabling you to stop the pipeline if you accidentally included files you didn't want ##
 
   ## Prelim fastQC on raw reads ##
   fastqc -t ${THREADS} -o ${OUTPUT_DIR}$(date +%Y%m%d_)raw_data_fastQC/ ${INPUT_DIR}"$i"${SUFFIX}
 
   if [ ${LIB_TYPE} = "PE" ]; then
     ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the Nextera PE primer list, this may need to be changed if you have data from different sources, be aware of it ##
-    java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/NexteraPE-PE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
+    trimmomatic ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:$HOME/adapters/NexteraPE-PE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
   else
     ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
-    java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
+    trimmomatic ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:$HOME/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
   fi
 
   ## fastQC on trimmed reads ##
@@ -227,13 +225,14 @@ do
     --outFileNamePrefix ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" \
 
     ## Extracting the relevant columns from the STAR output, ready for parsing into R and DEseq2 ##
-  cut -f1,4 ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.tab | grep -v "N_" > ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/`basename ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" ReadsPerGene.out.tab`_counts.txt
+cut -f1,4 ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.tab | grep -v "N_" > ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/`basename ${OUTPUT_DIR}$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" ReadsPerGene.out.tab`_counts.txt
 
-  ## Creating an info sheet to be parsed into the R script ##
-  cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-4) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
+## Creating an info sheet to be parsed into the R script ##
+ cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-4) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
   INPUT_DESEQ=${OUTPUT_DIR}$(date +%Y%m%d_)sample_sheet_DEseq.txt
 done
 multiqc ${OUTPUT_DIR} -o ${OUTPUT_DIR}
+R_WD=$(printf "%q\n" "$(pwd)")
 R_WD=$(pwd ${INPUT_DIR})
 IN_R=${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/
-Rscript /Users/sam_2021/github/PL_RNAseq/PL_RNAseq_V0.0.R  ${R_WD} ${1} ${OUTPUT_DIR} ${2} $INPUT_DESEQ ${3} $IN_R ${4} ${STRAIN} ${5} #initialise R script and pass pass arguments
+Rscript ${SCRIPT_DIR}/PL_RNAseq_V0.0.R  "${R_WD}" ${1} "${OUTPUT_DIR}" ${2} "$INPUT_DESEQ" ${3} "$IN_R" ${4} "${STRAIN}" ${5} #initialise R script and pass pass arguments

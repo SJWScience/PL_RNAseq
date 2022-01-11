@@ -124,10 +124,8 @@ done
 
 
 command -v star >/dev/null 2>&1 || { echo >&2 "This script requires STAR but it's not installed, or not in your working environment.  Aborting."; exit 1; }
-export PATH=/usr/local/bin/FastQC:$PATH
 command -v fastqc >/dev/null 2>&1 || { echo >&2 "This script requires fastqc but it's not installed, or not in your working environment.  Aborting."; exit 1; }
-export PATH=/usr/local/bin/Trimmomatic-0.39:$PATH
-command -v java -jar trimmomatic-0.39.jar >/dev/null 2>&1 || { echo >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
+command -v trimmomatic >/dev/null 2>&1 || { echo >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
 
 #if [ -n ${REFERENCE_CREATE}]
 #then
@@ -216,7 +214,7 @@ echo "$i"
 fastqc -t ${THREADS} -o ${OUTPUT_DIR}$(date +%Y%m%d_)raw_data_fastQC/ ${INPUT_DIR}"$i"${SUFFIX}
 ## Prelim fastQC on raw reads ##
 
-java -jar /usr/local/bin/Trimmomatic-0.39/trimmomatic-0.39.jar ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}/"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
+trimmomatic ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}/"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
 ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
 
 fastqc -t ${THREADS} -o ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC/ ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ## Post trim, fastQC ##
