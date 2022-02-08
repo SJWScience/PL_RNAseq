@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # load input data
 if (length(commandArgs(trailingOnly = TRUE)) > 0) {
   args <- commandArgs(trailingOnly = TRUE)
@@ -84,7 +85,7 @@ head(DESEQ2_norm_counts)
 setwd(raw_dir)
 
 write.table(DESEQ2_norm_counts, "output_tables/DESEQ2_norm_counts.txt", quote = F,
-  col.names = T, row.names = F, sep = "\t")
+  col.names = T, row.names = T, sep = "\t")
 
 setwd(wor_dir)
 
@@ -104,8 +105,8 @@ if (strain == "pau") {
 } else if (strain == "pag") {
   PA_info_genes <- data.table::fread("~/OneDrive - University of Otago/PL_2021/mapping_sheets_for_RNA_seq/LESB.csv")
 } else if (strain == "saa") {
-  SA_info_genes <- data.table::fread("~/Downloads/Sa_GO.tsv")
-  SA_annotate_genes <- data.table::fread("/usr/local/bin/STARgenomes/Staphylococcus_aureus_USA300_FPR3757_031121/geneInfo.tab")
+  SA_info_genes <- data.table::fread("~/OneDrive - University of Otago/PL_2021/mapping_sheets_for_RNA_seq/STAPH_MERGE.csv")
+  SA_annotate_genes <- data.table::fread("/Users/taysa33p/STAR_GENOMES/USA300_ASM1346v1/geneInfo.tab")
 } else {
   print("no match")
 }
@@ -124,17 +125,15 @@ if (strain == "saa") {
       data.frame() %>%
       tibble::rownames_to_column(var = "gene") %>%
       as_tibble()
-    merge_1 <- merge(DESEQ2_table_dge_tb, SA_info_genes, by.x = "gene", by.y = "names")
-    merge_x <- merge(merge_1, SA_annotate_genes, by.x = "gene", by.y = "V2")
+    merge_1 <- merge(DESEQ2_table_dge_tb, SA_info_genes, by.x = "gene", by.y = "old_loci")
     DESEQ2_table_dge_tb1 <- DESEQ2_DEG_alt %>%
       data.frame() %>%
       tibble::rownames_to_column(var = "gene") %>%
       as_tibble()
-    merge_2 <- merge(DESEQ2_table_dge_tb1, SA_info_genes, by.x = "gene", by.y = "names")
-    merge_y <- merge(merge_2, SA_annotate_genes, by.x = "gene", by.y = "V2")
-    write.table(merge_x, "output_tables/DESEQ2_DEG_named.txt", quote = F, col.names = T,
+    merge_2 <- merge(DESEQ2_table_dge_tb1, SA_info_genes, by.x = "gene", by.y = "old_loci")
+    write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote = F, col.names = T,
       row.names = F, sep = "\t")
-    write.table(merge_y, "output_tables/DESEQ2_DEG_alt_named.txt", quote = F,
+    write.table(merge_2, "output_tables/DESEQ2_DEG_alt_named.txt", quote = F,
       col.names = F, row.names = T, sep = "\t")
   } else {
     DESEQ2_DEG <- results(object = input_star2, contrast = paste(c(nmcolz[4:4],
@@ -145,13 +144,12 @@ if (strain == "saa") {
       data.frame() %>%
       tibble::rownames_to_column(var = "gene") %>%
       as_tibble()
-    merge_1 <- merge(DESEQ2_table_dge_tb, SA_info_genes, by.x = "gene", by.y = "names")
-    merge_x <- merge(merge_1, SA_annotate_genes, by.x = "gene", by.y = "V2")
+    merge_1 <- merge(DESEQ2_table_dge_tb, SA_info_genes, by.x = "gene", by.y = "old_loci")
     DESEQ2_table_dge_tb1 <- DESEQ2_DEG %>%
       data.frame() %>%
       tibble::rownames_to_column(var = "gene") %>%
       as_tibble()
-    write.table(merge_x, "output_tables/DESEQ2_DEG_named.txt", quote = F, col.names = T,
+    write.table(merge_1, "output_tables/DESEQ2_DEG_named.txt", quote = F, col.names = T,
       row.names = F, sep = "\t")
   }
 } else {
@@ -283,14 +281,14 @@ if (length(unique(input_table_DESEQ2$Gene)) > 1 && (length(unique(input_table_DE
   1)) {
   p <- plotPCA(object = DESEQ2_var_stabl, intgroup = c(nmcolz[3:3], nmcolz[4:4]))
   p <- p + geom_label_repel(aes(label = DESEQ2_var_stabl@colData@rownames), box.padding = 0.35,
-    point.padding = 0.5, segment.color = "grey50") + theme_bw() + theme(aspect.ratio = 1/2)  #Long and skinny
-  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf", height = 20, width = 50,
+    point.padding = 0.5, segment.color = "grey50") + theme_bw() + theme(aspect.ratio = 1/1)  #Long and skinny
+  ggsave(filename = "output_plots/DESEQ_conditions_all_PCA.pdf", height = 10, width = 10,
     limitsize = FALSE)
 } else {
   p <- plotPCA(object = DESEQ2_var_stabl, intgroup = nmcolz[4:4])
   p <- p + geom_label_repel(aes(label = DESEQ2_var_stabl@colData@rownames), box.padding = 0.35,
-    point.padding = 0.5, segment.color = "grey50") + theme_bw() + theme(aspect.ratio = 1/2)  #Long and skinny
-  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf", height = 20, width = 50,
+    point.padding = 0.5, segment.color = "grey50") + theme_bw() + theme(aspect.ratio = 1/1)  #Long and skinny
+  ggsave(filename = "output_plots/DESEQ_conditions_PCA.pdf", height = 10, width = 10,
     limitsize = FALSE)
 }
 
@@ -392,7 +390,7 @@ if (strain == "pau") {
 } else if (strain == "pag") {
   PAO1_GO_all <- data.table::fread("~/Desktop/LESB_ontology.csv")
 } else if (strain == "saa") {
-  PAO1_GO_all <- data.table::fread("~/Desktop/Sa_GO.txt")
+  PAO1_GO_all <- data.table::fread("~/OneDrive - University of Otago/PL_2021/mapping_sheets_for_RNA_seq/STAPH_GO.csv")
 } else {
   print("nb")
 }
@@ -440,8 +438,8 @@ if (is.na(cluster_profiler_custom[1,5]) == "TRUE"){
 }
 
 if (strain == "saa"){
-  term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
-  term2name <- subset(PAO1_GO_all, select=c(5,6)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
+  term2gene <- subset(PAO1_GO_all, select=c(2,1)) #extracting relevant geneA = GO:X for next step)
+  term2name <- subset(PAO1_GO_all, select=c(4,2)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
 } else {
   term2gene <- subset(PAO1_GO_all, select=c(5,1)) #extracting relevant geneA = GO:X for next step)
   term2name <- subset(PAO1_GO_all, select=c(5,6,7)) #extracting relevant GO# = function = category eg: GO:0005524 _ ATP binding _ molecular_function
@@ -466,7 +464,7 @@ if (is.na(cluster_profiler_enriched[1,5]) == "TRUE"){
   cluster_profiler_enriched@result$cp_GeneRatio <- cluster_profiler_enriched@result$GeneRatio
   cluster_profiler_enriched@result$cp_Description <- cluster_profiler_enriched@result$Description
   cluster_profiler_enriched@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched@result$BgRatio, "/"), `[[`, 1), sep = "")
-  cluster_profiler_enriched@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(cluster_profiler_enriched@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  cluster_profiler_enriched@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched@result$Description, "/t"), `[[`, 1), "", "\n", "" , "(", sapply(strsplit(cluster_profiler_enriched@result$ID, "\t"), `[[`, 1), ")", sep = "")
   dotplot(cluster_profiler_enriched, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (all ontologies)")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched.pdf", width = 10)
   setwd(wor_dir)
@@ -478,7 +476,7 @@ if (is.na(cluster_profiler_enrichedUP[1,5]) == "TRUE"){
   cluster_profiler_enrichedUP@result$cp_GeneRatio <- cluster_profiler_enrichedUP@result$GeneRatio
   cluster_profiler_enrichedUP@result$cp_Description <- cluster_profiler_enrichedUP@result$Description
   cluster_profiler_enrichedUP@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enrichedUP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enrichedUP@result$BgRatio, "/"), `[[`, 1), sep = "")
-  cluster_profiler_enrichedUP@result$Description <- paste(sapply(strsplit(cluster_profiler_enrichedUP@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(cluster_profiler_enrichedUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  cluster_profiler_enrichedUP@result$Description <- paste(sapply(strsplit(cluster_profiler_enrichedUP@result$Description, "/t"), `[[`, 1), "", "\n", "" , "(", sapply(strsplit(cluster_profiler_enrichedUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
   dotplot(cluster_profiler_enrichedUP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (all ontologies) up-regulated")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched_upregulated.pdf", width = 10)
   setwd(wor_dir)
@@ -490,7 +488,7 @@ if (is.na(cluster_profiler_enrichedDOWN[1,5]) == "TRUE"){
   cluster_profiler_enrichedDOWN@result$cp_GeneRatio <- cluster_profiler_enrichedDOWN@result$GeneRatio
   cluster_profiler_enrichedDOWN@result$cp_Description <- cluster_profiler_enrichedDOWN@result$Description
   cluster_profiler_enrichedDOWN@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enrichedDOWN@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enrichedDOWN@result$BgRatio, "/"), `[[`, 1), sep = "")
-  cluster_profiler_enrichedDOWN@result$Description <- paste(sapply(strsplit(cluster_profiler_enrichedDOWN@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(cluster_profiler_enrichedDOWN@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  cluster_profiler_enrichedDOWN@result$Description <- paste(sapply(strsplit(cluster_profiler_enrichedDOWN@result$Description, "/t"), `[[`, 1), "", "\n", "" , "(", sapply(strsplit(cluster_profiler_enrichedDOWN@result$ID, "\t"), `[[`, 1), ")", sep = "")
   dotplot(cluster_profiler_enrichedDOWN, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (all ontologies) down-regulated")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched_downregulated.pdf", width = 10)
   setwd(wor_dir)
@@ -520,7 +518,7 @@ if (is.na(cluster_profiler_enriched_MF[1,5]) == "TRUE"){
     cluster_profiler_enriched_MF@result$cp_GeneRatio <- cluster_profiler_enriched_MF@result$GeneRatio
     cluster_profiler_enriched_MF@result$cp_Description <- cluster_profiler_enriched_MF@result$Description
     cluster_profiler_enriched_MF@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_MF@result$BgRatio, "/"), `[[`, 1), sep = "")
-    cluster_profiler_enriched_MF@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(cluster_profiler_enriched_MF@result$ID, "\t"), `[[`, 1), ")", sep = "")
+    cluster_profiler_enriched_MF@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MF@result$Description, "/t"), `[[`, 1), "", "\n", "" , "(", sapply(strsplit(cluster_profiler_enriched_MF@result$ID, "\t"), `[[`, 1), ")", sep = "")
     dotplot(cluster_profiler_enriched_MF, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Molecular Function)")
     ggsave(filename = "output_plots/GO_gene_ratio_enriched_MF.pdf", width = 10)
     setwd(wor_dir)
@@ -532,7 +530,7 @@ if (is.na(cluster_profiler_enriched_MFUP[1,5]) == "TRUE"){
   cluster_profiler_enriched_MFUP@result$cp_GeneRatio <- cluster_profiler_enriched_MFUP@result$GeneRatio
   cluster_profiler_enriched_MFUP@result$cp_Description <- cluster_profiler_enriched_MFUP@result$Description
   cluster_profiler_enriched_MFUP@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_MFUP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_MFUP@result$BgRatio, "/"), `[[`, 1), sep = "")
-  cluster_profiler_enriched_MFUP@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MFUP@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(cluster_profiler_enriched_MFUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  cluster_profiler_enriched_MFUP@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MFUP@result$Description, "/t"), `[[`, 1), "", "\n", "" , "(", sapply(strsplit(cluster_profiler_enriched_MFUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
   dotplot(cluster_profiler_enriched_MFUP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Molecular Function) up-regulated")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched_MF_upregulated.pdf", width = 10)
   setwd(wor_dir)
@@ -544,7 +542,7 @@ if (is.na(cluster_profiler_enriched_MFDOWN[1,5]) == "TRUE"){
   cluster_profiler_enriched_MFDOWN@result$cp_GeneRatio <- cluster_profiler_enriched_MFDOWN@result$GeneRatio
   cluster_profiler_enriched_MFDOWN@result$cp_Description <- cluster_profiler_enriched_MFDOWN@result$Description
   cluster_profiler_enriched_MFDOWN@result$GeneRatio <- paste(sapply(strsplit(cluster_profiler_enriched_MFDOWN@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(cluster_profiler_enriched_MFDOWN@result$BgRatio, "/"), `[[`, 1), sep = "")
-  cluster_profiler_enriched_MFDOWN@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MFDOWN@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(cluster_profiler_enriched_MFDOWN@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  cluster_profiler_enriched_MFDOWN@result$Description <- paste(sapply(strsplit(cluster_profiler_enriched_MFDOWN@result$Description, "/t"), `[[`, 1), "", "\n", "" , "(", sapply(strsplit(cluster_profiler_enriched_MFDOWN@result$ID, "\t"), `[[`, 1), ")", sep = "")
   dotplot(cluster_profiler_enriched_MFDOWN, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("GO gene ratio (Molecular Function) down-regulated")
   ggsave(filename = "output_plots/GO_gene_ratio_enriched_MF_downregulated.pdf", width = 10)
   setwd(wor_dir)
@@ -680,7 +678,7 @@ if (is.na(clustprof_keggUP[1,5]) == "TRUE"){
   clustprof_keggUP@result$cp_GeneRatio <- clustprof_keggUP@result$GeneRatio
   clustprof_keggUP@result$cp_Description <- clustprof_keggUP@result$Description
   clustprof_keggUP@result$GeneRatio <- paste(sapply(strsplit(clustprof_keggUP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(clustprof_keggUP@result$BgRatio, "/"), `[[`, 1), sep = "")
-  clustprof_keggUP@result$Description <- paste(sapply(strsplit(clustprof_keggUP@result$Description, "/t"), `[[`, 1), " ", "\n", " " , "(", sapply(strsplit(clustprof_keggUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  clustprof_keggUP@result$Description <- paste(sapply(strsplit(clustprof_keggUP@result$Description, "/t"), `[[`, 1), "", "\n", " " , "(", sapply(strsplit(clustprof_keggUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
   dotplot(clustprof_keggUP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Gene ratio (KEGG pathways) up-regulated")
   ggsave(filename = "output_plots/KEGG_gene_ratio_enriched_upregulated.pdf", width = 10)
   setwd(wor_dir)
@@ -706,7 +704,9 @@ if (strain == "pag"){
   data_fold_changes <- DESEQ2_DEG$log2FoldChange
   names(data_fold_changes) <- rownames(DESEQ2_DEG)
 }
+
 setwd(raw_dir)
+
 setwd("pathview")
 
 
