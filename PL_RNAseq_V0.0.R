@@ -678,9 +678,9 @@ if (is.na(clustprof_keggUP[1,5]) == "TRUE"){
   clustprof_keggUP@result$cp_GeneRatio <- clustprof_keggUP@result$GeneRatio
   clustprof_keggUP@result$cp_Description <- clustprof_keggUP@result$Description
   clustprof_keggUP@result$GeneRatio <- paste(sapply(strsplit(clustprof_keggUP@result$GeneRatio, "/"), `[[`, 1), "/", sapply(strsplit(clustprof_keggUP@result$BgRatio, "/"), `[[`, 1), sep = "")
-  clustprof_keggUP@result$Description <- paste(sapply(strsplit(clustprof_keggUP@result$Description, "/t"), `[[`, 1), "", "\n", " " , "(", sapply(strsplit(clustprof_keggUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
-  dotplot(clustprof_keggUP, x = "GeneRatio", orderBy = "x", showCategory=20) + ggtitle("Gene ratio (KEGG pathways) up-regulated")
-  ggsave(filename = "output_plots/KEGG_gene_ratio_enriched_upregulated.pdf", width = 10)
+  clustprof_keggUP@result$Description <- paste(sapply(strsplit(clustprof_keggUP@result$Description, "/t"), `[[`, 1), " ","\n", "(", sapply(strsplit(clustprof_keggUP@result$ID, "\t"), `[[`, 1), ")", sep = "")
+  dotplot(clustprof_keggUP, x = "GeneRatio", orderBy = "x", showCategory=20) + theme(axis.title = element_text(hjust = 0.5)) + ggtitle("Gene ratio (KEGG pathways) up-regulated")
+  ggsave(filename = "output_plots/KEGG_gene_ratio_enriched_upregulated.pdf", width = 20)
   setwd(wor_dir)
 }
 if (is.na(clustprof_keggDOWN[1,5]) == "TRUE"){
