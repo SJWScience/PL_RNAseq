@@ -1,12 +1,13 @@
 #! /bin/bash
+#
 #args: input_dir($1) file_suffix($2) output_dir($3) reference($4) threads($5) lib_type($6)
-#echo $1
-#echo ""
-#echo $2
-#echo ""
-#echo $3
-#echo ""
-#echo $4
+#printf $1
+#printf ""
+#printf $2
+#printf ""
+#printf $3
+#printf ""
+#printf $4
 
 usage="
 
@@ -71,7 +72,7 @@ Will allow for RNA samples which contain material from multiple species of proka
 Will eventually allow for RNA sameples which contain material from multiple species of prokaryotes or eukaryotes "
 
 if [ "$1" == "-h" ]; then
-  echo "$usage"
+  printf "$usage"
   exit 0
 fi
 POSITIONAL=()
@@ -123,81 +124,74 @@ esac
 done
 
 
-command -v star >/dev/null 2>&1 || { echo >&2 "This script requires STAR but it's not installed, or not in your working environment.  Aborting."; exit 1; }
-command -v fastqc >/dev/null 2>&1 || { echo >&2 "This script requires fastqc but it's not installed, or not in your working environment.  Aborting."; exit 1; }
-command -v trimmomatic >/dev/null 2>&1 || { echo >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
+command -v star >/dev/null 2>&1 || { printf >&2 "This script requires STAR but it's not installed, or not in your working environment.  Aborting."; exit 1; }
+command -v fastqc >/dev/null 2>&1 || { printf >&2 "This script requires fastqc but it's not installed, or not in your working environment.  Aborting."; exit 1; }
+command -v trimmomatic >/dev/null 2>&1 || { printf >&2 "This script requires Trimmomatic but it's not installed, or not in your working environment.  Aborting."; exit 1; }
 
 #if [ -n ${REFERENCE_CREATE}]
 #then
-#  echo "1"
+#  printf "1"
 #  exit 0
 #else
-#  echo "2"
+#  printf "2"
 #fi
 
 ## Code for parsing arguments, allows for them to be placed in any order within the run command ##
-echo ""
-if [ -z ${INPUT_DIR} ]
-then
-echo "$usage"
-echo ""
-echo "ERROR - No input directory set, please assign an input directory using the -i argument (example: -i ~/project1/raw_data/"
-exit 0
+
+
+if [ -z ${INPUT_DIR} ]; then
+  printf "\n$usage\n"
+  printf "ERROR - No input directory set, please assign an input directory using the -i argument (example: -i ~/project1/raw_data/"
+  exit 0
 else
-echo "INPUT_DIR = ${INPUT_DIR}"
+  printf "INPUT_DIR = ${INPUT_DIR}"
 fi
-if [ -z ${SUFFIX} ]
-then
-echo "$usage"
-echo ""
-echo "ERROR - No file suffix set, please assign a file suffix using the -s argument (example: -s .fq.gz)"
-exit 0
+
+if [ -z ${SUFFIX} ]; then
+  printf "\n$usage\n"
+  printf "ERROR - No file suffix set, please assign a file suffix using the -s argument (example: -s .fq.gz)"
+  exit 0
 else
-echo "SUFFIX = ${SUFFIX}"
+  printf "SUFFIX = ${SUFFIX}"
 fi
-if [ -z ${OUTPUT_DIR} ]
-then
-echo "$usage"
-echo ""
-echo "ERROR - No output directory set, please assign an output directory using the -o argument (example: -o ~/project1/output_RNA_pipeline/)"
-exit 0
+
+if [ -z ${OUTPUT_DIR} ]; then
+  printf "\n$usage\n"
+  printf "ERROR - No output directory set, please assign an output directory using the -o argument (example: -o ~/project1/output_RNA_pipeline/)"
+  exit 0
 else
-echo "OUTPUT_DIR = ${OUTPUT_DIR}"
+  printf "OUTPUT_DIR = ${OUTPUT_DIR}"
 fi
-if [ -z ${REFERENCE} ]
-then
-echo "$usage"
-echo ""
-echo "ERROR - No STAR reference genome set, please assign an STAR reference genome directory using the -r argument (example: -r /usr/local/bin/STAR_genomes/Pseudomonas_aeruginosa_PAO1_070421/)"
-exit 0
+
+if [ -z ${REFERENCE} ]; then
+  printf "\n$usage\n"
+  printf "ERROR - No STAR reference genome set, please assign an STAR reference genome directory using the -r argument (example: -r /usr/local/bin/STAR_genomes/Pseudomonas_aeruginosa_PAO1_070421/)"
+  exit 0
 else
-echo "REFERENCE = ${REFERENCE}"
+  printf "REFERENCE = ${REFERENCE}"
 fi
-if [ -z ${THREADS} ]
-then
-echo "$usage"
-echo ""
-echo "ERROR - No threads designated, please use the -t argument and add the number of cores you want this pipeline run on (example: -t 6)"
-exit 0
+
+if [ -z ${THREADS} ]; then
+  printf "\n$usage\n"
+  printf "ERROR - No threads designated, please use the -t argument and add the number of cores you want this pipeline run on (example: -t 6)"
+  exit 0
 else
-echo "THREADS = ${THREADS}"
+  printf "THREADS = ${THREADS}"
 fi
-if [ -z ${LIB_TYPE} ]
-then
-echo "$usage"
-echo ""
-echo "ERROR - No library type assigned, please use the -l argument and add the library type of your experience (paired end or single end) (example: -l SE)"
-exit 0
+
+if [ -z ${LIB_TYPE} ]; then
+  printf "\n$usage\n"
+  printf "ERROR - No library type assigned, please use the -l argument and add the library type of your experience (paired end or single end) (example: -l SE)"
+  exit 0
 else
-echo "LIB_TYPE = ${LIB_TYPE}"
+  printf "LIB_TYPE = ${LIB_TYPE}"
 fi
-echo ""
-echo "input files being tested:"
-echo ""
+
+printf "\ninput files being tested:\n"
 
 ## Making folders for the outputs - using date as a prefix to prevent accidental overwriting of runs done previously ##
 ls ${INPUT_DIR}*${SUFFIX}
-lgth=`echo -n ${SUFFIX} | wc -c`
+lgth=`printf -n ${SUFFIX} | wc -c`
 lgthx=$((lgth+1))
 mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)raw_data_fastQC
 mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed
@@ -205,36 +199,34 @@ mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC
 mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs
 
 ## start of for loop to perform mapping and read counting on each sample within your folder matching the suffix provided ##
-for i
-in $(ls ${INPUT_DIR}*${SUFFIX} | xargs -n 1 basename | cut -f 1 -d '.' -) ## Takes all files within your input directory matching your suffix provided. Cuts off the suffix (eg .fq.gz) and then sets the file name as the basename (assigned to variable $i. For example a sample called "sample1.fq.gz" becomes "sample1" and when $i variable is used it recognises that as "sample1" ##
-do
-echo "$i"
-## Added so you know exactly which files are being loaded into the pipeline, enabling you to stop the pipeline if you accidentally included files you didn't want ##
+for i in $(ls ${INPUT_DIR}*${SUFFIX} | xargs -n 1 basename | cut -f 1 -d '.' -); do ## Takes all files within your input directory matching your suffix provided. Cuts off the suffix (eg .fq.gz) and then sets the file name as the basename (assigned to variable $i. For example a sample called "sample1.fq.gz" becomes "sample1" and when $i variable is used it recognises that as "sample1" ##
+  printf "$i"
+  ## Added so you know exactly which files are being loaded into the pipeline, enabling you to stop the pipeline if you accidentally included files you didn't want ##
 
-fastqc -t ${THREADS} -o ${OUTPUT_DIR}$(date +%Y%m%d_)raw_data_fastQC/ ${INPUT_DIR}"$i"${SUFFIX}
-## Prelim fastQC on raw reads ##
+  fastqc -t ${THREADS} -o ${OUTPUT_DIR}$(date +%Y%m%d_)raw_data_fastQC/ ${INPUT_DIR}"$i"${SUFFIX}
+  ## Prelim fastQC on raw reads ##
 
-trimmomatic ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}/"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
-## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
+  trimmomatic ${LIB_TYPE} -threads ${THREADS} -phred33 ${INPUT_DIR}/"$i"${SUFFIX} ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ILLUMINACLIP:/usr/local/bin/Trimmomatic-0.39/adapters/TruSeq3-SE.fa:2:30:10 LEADING:5 TRAILING:5 SLIDINGWINDOW:4:20 MINLEN:20
+  ## Trimmomatic on raw_reads, in this case it assumes your primers are found in the TruSeq3 SE primer list, this may need to be changed if you have data from different sources, be aware of it ##
 
-fastqc -t ${THREADS} -o ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC/ ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ## Post trim, fastQC ##
+  fastqc -t ${THREADS} -o ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed_data_fastQC/ ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz ## Post trim, fastQC ##
 
-## STAR alignment, this can be customised to suit your needs ##
-mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment
-star --runThreadN ${THREADS} \
---genomeDir ${REFERENCE} \
---readFilesCommand gunzip -c \
---readFilesIn  ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz \
---quantMode GeneCounts \
---outSAMtype BAM SortedByCoordinate \
---outFileNamePrefix ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" \
+  ## STAR alignment, this can be customised to suit your needs ##
+  mkdir ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment
+  star --runThreadN ${THREADS} \
+  --genomeDir ${REFERENCE} \
+  --readFilesCommand gunzip -c \
+  --readFilesIn  ${OUTPUT_DIR}/$(date +%Y%m%d_)trimmed/"$i".trimmed.fastq.gz \
+  --quantMode GeneCounts \
+  --outSAMtype BAM SortedByCoordinate \
+  --outFileNamePrefix ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" \
 
-## Extracting the relevant columns from the STAR output, ready for parsing into R and DEseq2 ##
-cut -f1,4 ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.tab | grep -v "_" > ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/`basename ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" ReadsPerGene.out.tab`_counts.txt
+  ## Extracting the relevant columns from the STAR output, ready for parsing into R and DEseq2 ##
+  cut -f1,4 ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment/"$i"ReadsPerGene.out.tab | grep -v "_" > ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/`basename ${OUTPUT_DIR}/$(date +%Y%m%d_)"$i"_STAR_alignment/"$i" ReadsPerGene.out.tab`_counts.txt
 
-## Creating an info sheet to be parsed into the R script ##
-cat <(echo -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-4) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
-INPUT_DESEQ=${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
+  ## Creating an info sheet to be parsed into the R script ##
+  cat <(printf -e "SampleName\tFileName\tGene\tCondition") <(paste <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1-4) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs) <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f1 | awk '{print $0}') <(ls ${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs | cut -d"_" -f2 | awk '{print $0}')) > ${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
+  INPUT_DESEQ=${OUTPUT_DIR}/$(date +%Y%m%d_)sample_sheet_DEseq.txt
 done
 R_WD=$(pwd ${INPUT_DIR})
 IN_R=${OUTPUT_DIR}/$(date +%Y%m%d_)deseq2_inputs/
